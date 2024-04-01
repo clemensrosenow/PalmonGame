@@ -1,5 +1,6 @@
 import java.util.*;
 
+//Mini-Library for reused user console input
 public class Input {
     static Scanner scanner = new Scanner(System.in);
 
@@ -11,6 +12,11 @@ public class Input {
             input = scanner.nextLine();
         }
         return input;
+    }
+
+    public static boolean confirm(String prompt) {
+        return select(prompt, Set.of("yes", "no")).equals("yes");
+
     }
 
     public static int number(String prompt) {
@@ -27,17 +33,12 @@ public class Input {
         }
     }
 
-    //TODO: Method necessary?
-    public static int number(String prompt, int lowerBound) {
-        int input = number(prompt);
-        if (input < lowerBound) {
-            return number("Enter a value greater than or equal to " + lowerBound + ": ", lowerBound);
-        }
-        return input;
-    }
 
     public static int number(String prompt, int lowerBound, int upperBound) {
-        int input = number(prompt, lowerBound);
+        int input = number(prompt);
+        if (input < lowerBound) {
+            return number("Enter a value greater than or equal to " + lowerBound + ": ", lowerBound, upperBound);
+        }
         if (input > upperBound) {
             return number("Enter a value smaller than or equal to " + upperBound + ": ", lowerBound, upperBound);
         }

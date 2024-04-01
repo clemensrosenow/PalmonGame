@@ -1,6 +1,4 @@
-
 import java.util.*;
-
 
 public class Team {
     HashSet<Palmon> palmons;
@@ -17,8 +15,9 @@ public class Team {
 
     boolean add(Palmon palmon) {
         if (palmons.contains(palmon)) return false;
+        palmon.setRandomLevel(minLevel, maxLevel);
+        palmon.setMoves();
         palmons.add(palmon);
-        //TODO: Call Move Assigment for Palmon
         return true;
     }
 
@@ -59,10 +58,8 @@ public class Team {
         for (int i = 0; i < palmonCount; i++) {
             String selectedType = Input.select("Which Palmon type do you want? ", palmonTypes.keySet());
             System.out.println("Palmons of type " + selectedType);
-            //TODO: Display data table with subareas for types using System.out.printf and Unicode characters
-            palmonTypes.get(selectedType).forEach(palmon -> System.out.println("- " + palmon.id + ": " + palmon.name));
-            //TODO: Change data source -> addPalmonById uses all palmons, subArrayList should be used
-            Palmon validPalmon = addPalmonById("Which Palmon do you want in your team? Enter its ID: ");
+            printTable(palmonTypes.get(selectedType));
+            Palmon validPalmon = getPalmonById("Which Palmon do you want in your team? Enter its ID: ", palmonTypes.get(selectedType));
             System.out.println(validPalmon.name + "has been added to your team.");
         }
     }
@@ -70,23 +67,23 @@ public class Team {
 
     public void assembleById() {
         System.out.println("Now select your favorite Palmons by their ID!");
-        Data.palmons.forEach(palmon -> System.out.println("- " + palmon.id + ": " + palmon.name));
+        printTable(Data.palmons);
         for (int i = 0; i < palmonCount; i++) {
-            Palmon validPalmon = addPalmonById("Which Palmon do you want in your team? Enter its ID: ");
+            Palmon validPalmon = getPalmonById("Which Palmon do you want in your team? Enter its ID: ", Data.palmons);
             System.out.println(validPalmon.name + "has been added to your team.");
         }
     }
 
-    private Palmon addPalmonById(String prompt) {
+    private Palmon getPalmonById(String prompt, ArrayList<Palmon> dataSource) {
         int selectedId = Input.number(prompt,1,10194);
-        Optional<Palmon> optionalPalmon = Data.palmons.stream().filter(palmon -> palmon.id == selectedId).findFirst();
+        Optional<Palmon> optionalPalmon = dataSource.stream().filter(palmon -> palmon.id == selectedId).findFirst();
 
         if(optionalPalmon.isEmpty()) {
-            return addPalmonById("No Palmon exists for this ID. Enter a different one: ");
+            return getPalmonById("No Palmon exists for this ID. Enter a different one: ", dataSource);
         }
 
         if(!add(optionalPalmon.get())) {
-            return addPalmonById("The selected Palmon is already in your team. Please select a different one: ");
+            return getPalmonById("The selected Palmon is already in your team. Please select a different one: ", dataSource);
         }
 
         return optionalPalmon.get();
@@ -95,4 +92,12 @@ public class Team {
         //Use selection Input to display all palmons with id
         //Get multiple ids, seperated with Enter
         //Check that id is valid and palmon not already in Team
+
+    private static void printTable(ArrayList<Palmon> rows) {
+        System.out.printf("%5s %-20s %n,", "ID", "Name");
+        System.out.printf("%5s %-20s %n,", "-----", "----------------------");
+        for (Palmon entry: rows) {
+            System.out.printf("%5d %-20s", entry.id, entry.name);
+        }
+    }
 }

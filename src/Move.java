@@ -1,10 +1,12 @@
+import java.util.Random;
+
 public class Move {
-    private final int id;
-    private final String name;
-    private final int damage;
+    final int id;
+    final String name;
+    final int damage;
     private int maxUsages;
     private int usages = 0;
-    private final int accuracy;
+    final int accuracy;
     private final String type;
 
     public Move(int id, String name, int damage, int maxUsages, int accuracy, String type) {
@@ -22,6 +24,10 @@ public class Move {
         } else {
             System.out.println("Not usable");
         }
+    }
+
+    public boolean hits() {
+        return accuracy >= new Random().nextInt(100);
     }
 }
 

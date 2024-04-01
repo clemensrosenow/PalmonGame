@@ -1,4 +1,5 @@
 import java.io.*;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -8,15 +9,24 @@ import java.util.stream.Stream;
 import java.lang.Character;
 
 public class Data {
-    static CopyOnWriteArrayList<Palmon> palmons; //Todo: methods getById & getByType
+    static ArrayList<Palmon> palmons; //Todo: methods getById & getByType -> in other class
+    //Todo: Maybe modify to simple ArrayList
     static CopyOnWriteArrayList<Move> moves;
-    static HashMap<String, TreeMap<Integer, String>> palmonMoves;
+    static HashMap<Integer, HashMap<Integer, Integer>> palmonMoves;
     static HashMap<String, HashMap<String, Float>> effectivity;
 
     static final private DataProcessor.PalmonProcessor palmonProcessor = new DataProcessor.PalmonProcessor();
     static final private DataProcessor.MoveProcessor moveProcessor = new DataProcessor.MoveProcessor();
     static final private DataProcessor.PalmonMoveProcessor palmonMoveProcessor = new DataProcessor.PalmonMoveProcessor();
     static final private DataProcessor.EffectivityProcessor effectivityProcessor = new DataProcessor.EffectivityProcessor();
+
+    public static Palmon getPalmonById(int palmonId) {
+        return palmons.stream().filter(palmon -> palmon.id == palmonId).findFirst().orElse(null);
+    }
+
+    public static Move getMoveById(int moveId) {
+        return moves.stream().filter(move -> move.id == moveId).findFirst().orElse(null);
+    }
 
     public static CompletableFuture<Void> loadCSVFiles() {
         Map<String, DataProcessor> processors = Map.of(
@@ -142,20 +152,20 @@ abstract class DataProcessor {
     }
 
     static class PalmonMoveProcessor extends DataProcessor {
-        private final HashMap<String, TreeMap<Integer, String>> data = new HashMap<>();
+        private final HashMap<Integer, HashMap<Integer, Integer>> data = new HashMap<>();
 
         @Override
         public void processLine(String[] values) {
-            String palmonID = values[0];
-            String moveID = values[1];
-            int learnedOnLevel = Integer.parseInt(values[2]);
+            int palmonID = number(values[0]);
+            int moveID = number(values[1]);
+            int learnedOnLevel = number(values[2]);
 
-            data.putIfAbsent(palmonID, new TreeMap<>());
+            data.putIfAbsent(palmonID, new HashMap<>());
             data.get(palmonID).put(learnedOnLevel, moveID);
         }
 
         @Override
-        public HashMap<String, TreeMap<Integer, String>> getData() {
+        public HashMap<Integer, HashMap<Integer, Integer>> getData() {
             return data;
         }
     }
@@ -179,8 +189,8 @@ abstract class DataProcessor {
         }
 
         @Override
-        public CopyOnWriteArrayList<Palmon> getData() {
-            return new CopyOnWriteArrayList<>(data);
+        public ArrayList<Palmon> getData() {
+            return data;
         }
 
     }

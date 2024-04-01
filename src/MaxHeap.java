@@ -1,10 +1,9 @@
 import java.util.ArrayList;
-import java.util.Map;
 
 public class MaxHeap {
     private final ArrayList<Node> nodes = new ArrayList<>();
 
-    public static class Node {
+    private static class Node {
         int key;
         int value;
         Node(int moveId, int moveDamage) {
@@ -13,8 +12,8 @@ public class MaxHeap {
         }
     }
 
-    public void insert(Node node) {
-        nodes.add(node);
+    public void insert(int moveId, int moveDamage) {
+        nodes.add(new Node(moveId, moveDamage));
         heapifyUp(nodes.size() - 1);
     }
 
