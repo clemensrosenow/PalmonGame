@@ -1,4 +1,12 @@
+package entities;
+
+import utils.Input;
+import utils.CSVProcessing;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
+import utils.MaxHeap;
 
 public class Palmon {
     public final int id;
@@ -9,10 +17,10 @@ public class Palmon {
     int hp;
     private final int attack;
     private final int defense;
-    final int speed;
+    public final int speed;
     private int level = 100;
     public static final int maxMoves = 4;
-    private Move[] moves = new Move[maxMoves]; //Todo: Zu ArrayList für responsive Größe
+    private final ArrayList<Move> moves = new ArrayList<>();
 
     public Palmon(int id, String name, int height, int weight, String type1, String type2,
                   int hp, int attack, int defense, int speed) {
@@ -32,9 +40,9 @@ public class Palmon {
     public void setMoves() {
         //insert all possible moves filtered by level into max heap
         MaxHeap possibleMoves = new MaxHeap();
-        Data.palmonMoves.get(id).forEach((learnedOnLevel, moveId) -> {
+        CSVProcessing.palmonMoves.get(id).forEach((learnedOnLevel, moveId) -> {
             if (learnedOnLevel >= level) {
-                Move move = Data.getMoveById(moveId);
+                Move move = CSVProcessing.getMoveById(moveId);
                 if (move != null) {
                     possibleMoves.insert(moveId, move.damage);
                 }
@@ -45,26 +53,26 @@ public class Palmon {
         for (int i = 0; i < maxMoves; i++) {
             Integer maxDamageMoveId = possibleMoves.delete();
             if (maxDamageMoveId != null) {
-                moves[i] = Data.getMoveById(maxDamageMoveId);
+                moves.set(i, CSVProcessing.getMoveById(maxDamageMoveId));
             }
         }
     }
 
-    // Checks if the Palmon is combat-ready based on its HP
+    // Checks if the entities.Palmon is combat-ready based on its HP
     public boolean isDefeated() {
         return hp <= 0;
     }
 
     public Move selectAttack() {
         System.out.println("Select your attacking move!");
-        for (int i = 1; i <= moves.length; i++) {
-            System.out.println(i + ": " + moves[i].name);
-        }
-        return moves[Input.number("Number", 1, maxMoves) - 1]; //Todo: Is upper bound inclusive?
+        HashMap<String, String> options = new HashMap<>();
+        moves.forEach(move -> options.put(String.valueOf(move.id), move.name));
+        int selectedMoveId = Integer.parseInt(Input.select("Select your attacking move!", options));
+        return moves.stream().filter(move -> move.id == selectedMoveId).findFirst().get();
     }
 
     public Move getRandomAttack() {
-        return moves[new Random().nextInt(maxMoves)];
+        return moves.get(new Random().nextInt(maxMoves));
     }
     public void performAttack(Palmon victim, Move attack) {
         if (!attack.hits()) {
@@ -73,7 +81,7 @@ public class Palmon {
         }
 
         int healthDecrease = this.attack - victim.defense + attack.damage;
-        float effectivity = Data.effectivity.get(types[0]).get(victim.types[0]);
+        float effectivity = CSVProcessing.effectivity.get(types[0]).get(victim.types[0]);
 
         victim.hp -= (int) (healthDecrease * effectivity);
     }

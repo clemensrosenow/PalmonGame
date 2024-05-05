@@ -1,5 +1,6 @@
+package utils;
+
 import java.io.*;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -8,12 +9,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.lang.Character;
 
-public class Data {
-    static ArrayList<Palmon> palmons; //Todo: methods getById & getByType -> in other class
-    //Todo: Maybe modify to simple ArrayList
+import entities.Move;
+import entities.Palmon;
+
+public class CSVProcessing {
+    public static ArrayList<Palmon> palmons;
     static CopyOnWriteArrayList<Move> moves;
-    static HashMap<Integer, HashMap<Integer, Integer>> palmonMoves;
-    static HashMap<String, HashMap<String, Float>> effectivity;
+    public static HashMap<Integer, HashMap<Integer, Integer>> palmonMoves;
+    public static HashMap<String, HashMap<String, Float>> effectivity;
 
     static final private DataProcessor.PalmonProcessor palmonProcessor = new DataProcessor.PalmonProcessor();
     static final private DataProcessor.MoveProcessor moveProcessor = new DataProcessor.MoveProcessor();
@@ -40,7 +43,7 @@ public class Data {
             //Parallel processing of the CSV files
             try (ExecutorService executor = Executors.newFixedThreadPool(processors.size())) {
                 for (Map.Entry<String, DataProcessor> processor : processors.entrySet()) {
-                    executor.submit(new CSVReader("csv/" + processor.getKey() + ".csv", processor.getValue()));
+                    executor.submit(new CSVReader("src/resources/csv/" + processor.getKey() + ".csv", processor.getValue()));
                 }
 
                 //Initiate orderly shutdown, no new tasks will be accepted
@@ -77,7 +80,7 @@ public class Data {
         String splitSymbol = "-";
         String joinSymbol = " ";
         return Arrays.stream(word.split(splitSymbol))
-                .map(Data::normalize)
+                .map(CSVProcessing::normalize)
                 .collect(Collectors.joining(joinSymbol));
     }
 }
@@ -137,11 +140,11 @@ abstract class DataProcessor {
         public void processLine(String[] values) {
             data.add(new Move(
                     number(values[0]),
-                    Data.normalizeName(values[1]),
+                    CSVProcessing.normalizeName(values[1]),
                     number(values[2]),
                     number(values[3]),
                     number(values[4]),
-                    Data.normalize(values[5])
+                    CSVProcessing.normalize(values[5])
             ));
         }
 
@@ -176,11 +179,11 @@ abstract class DataProcessor {
         public void processLine(String[] values) {
             data.add(new Palmon(
                     number(values[0]),
-                    Data.normalizeName(values[1]),
+                    CSVProcessing.normalizeName(values[1]),
                     number(values[2]),
                     number(values[3]),
-                    Data.normalize(values[4]),
-                    Data.normalize(values[5]),
+                    CSVProcessing.normalize(values[4]),
+                    CSVProcessing.normalize(values[5]),
                     number(values[6]),
                     number(values[7]),
                     number(values[8]),

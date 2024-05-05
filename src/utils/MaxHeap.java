@@ -1,5 +1,8 @@
+package utils;
+
 import java.util.ArrayList;
 
+//Usage: Return the highest damage move
 public class MaxHeap {
     private final ArrayList<Node> nodes = new ArrayList<>();
 

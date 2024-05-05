@@ -1,11 +1,13 @@
+package utils;
+
 import java.util.*;
 
-//Mini-Library for reused user console input
+//Mini-Library for repeated user console input
 public class Input {
     static Scanner scanner = new Scanner(System.in);
 
     public static String text(String prompt) {
-        System.out.println("\n" + prompt);
+        System.out.print("\n" + prompt + " ");
         String input = scanner.nextLine();
         while (input.isEmpty()) {
             System.out.print("Text can't be empty: ");
@@ -46,29 +48,31 @@ public class Input {
     }
 
 
-    //TODO Abstract to avoid repetition (e.g. using helper function)
+    //Possible Abstract to avoid repetition (e.g. using helper function)
     public static String select(String prompt, Map<String,String> options) {
         System.out.println("\n" + prompt);
         options.forEach((key, value) -> System.out.println("- " + key + ": " + value));
         System.out.print("Your choice: ");
         String selection = scanner.nextLine();
         while (!options.containsKey(selection)) {
-            System.out.println("Select one of the provided options: ");
+            System.out.print("Select one of the provided options: ");
             selection = scanner.nextLine();
         }
         return selection;
     }
-
+    //Todo: Abstract to accept enum as options parameter and return one of its values
     public static String select(String prompt, Set<String> options) {
         System.out.println("\n" + prompt);
         options.forEach(key -> System.out.println("- " + key));
         System.out.print("Your choice: ");
         String selection = scanner.nextLine();
-        while (options.contains(selection)) {
-            System.out.println("Select one of the provided options: ");
+        while (!options.contains(selection)) {
+            System.out.print("Select one of the provided options: ");
             selection = scanner.nextLine();
         }
         return selection;
     }
+
+
 
 }

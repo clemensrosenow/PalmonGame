@@ -1,7 +1,8 @@
+package entities;
 import java.util.Random;
 
 public class Move {
-    final int id;
+    public final int id;
     final String name;
     final int damage;
     private int maxUsages;
