@@ -45,6 +45,11 @@ public class Game {
         Player loser;
         //Todo: inner class for results of winner / loser + fighting palmons
 
+        /*Todo: save fight results in CSV
+        *  -> columns: PalmonID, PlayerName, Palmon Status (survived or dead), GameResult, GameCount,
+        *
+        * */
+
 
         public void assembleTeams() {
             // entities.Palmon Count Selection

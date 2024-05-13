@@ -34,10 +34,10 @@ public class MaxHeap {
         }
     }
 
-    private void heapifyDown(int index) {
-        int largestIndex = index;
-        int leftChildIndex = 2 * index + 1;
-        int rightChildIndex = 2 * index + 1;
+    private void heapifyDown(int parentIndex) {
+        int largestIndex = parentIndex;
+        int leftChildIndex = 2 * parentIndex + 1;
+        int rightChildIndex = 2 * parentIndex + 2;
 
         if(leftChildIndex >= nodes.size()) return;
         if(nodes.get(leftChildIndex).key > nodes.get(largestIndex).key) {
@@ -49,10 +49,9 @@ public class MaxHeap {
             largestIndex = rightChildIndex;
         }
 
-        if (largestIndex == index) return; // Edge case: Parent has stayed the largest node
-        Node parent = nodes.get(index);
-        nodes.set(index, nodes.get(largestIndex));
-        nodes.set(largestIndex, parent);
+        if (largestIndex == parentIndex) return; // Edge case: Parent has stayed the largest node
+        nodes.set(parentIndex, nodes.get(largestIndex));
+        nodes.set(largestIndex, nodes.get(parentIndex));
         heapifyDown(largestIndex);
     }
 

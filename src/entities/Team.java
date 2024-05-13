@@ -141,13 +141,13 @@ public class Team {
 
 
         System.out.printf("├───────┼──────────────────────┤%n");
-        System.out.printf("│ %5d │ %-20s │%n", 4, "entities.Palmon");
+        System.out.printf("│ %5d │ %-20s │%n", 4, "Palmon");
 
         System.out.printf("├───────┼──────────────────────┤%n");
         System.out.printf("│ %5d │ %-20s │%n", 103, "Crazy Attacker");
 
         System.out.printf("├───────┼──────────────────────┤%n");
-        System.out.printf("│ %5d │ %-20s │%n", 10823, "Long Sick entities.Palmon Name");
+        System.out.printf("│ %5d │ %-20s │%n", 10823, "Long Sick Palmon Name");
 
         System.out.printf("└───────┴──────────────────────┘%n");
     }
