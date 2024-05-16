@@ -2,23 +2,19 @@ package entities;
 
 import utils.Input;
 import utils.CSVProcessing;
+import utils.Localization;
 
 import java.util.*;
 
 public class Team {
-    public static assembleMethod assembleMethod;
-    public enum assembleMethod {
-        random("randomly (default)"), id("by ID"), type("by Type");
-        final String name;
-        assembleMethod(String name) {
-            this.name = name;
-        }
+    public static AssembleMethod assembleMethod;
+    public enum AssembleMethod {
+        random, id, type;
     }
-    public void assemble() {
-        assembleRandomly();
-    }
-    public void assemble(assembleMethod method) {
-        switch (method) {
+    final public static AssembleMethod defaultAssembleMethod = Team.AssembleMethod.random;
+
+    public void assemble(AssembleMethod assembleMethod) {
+        switch (assembleMethod) {
             case id:
                 assembleById();
                 break;
@@ -52,7 +48,7 @@ public class Team {
 
 
 
-    private void assembleRandomly() {
+    public void assembleRandomly() {
         Random random = new Random();
         for (int i = 0; i < palmonCount; i++) {
             Palmon randomPalmon;
@@ -85,7 +81,7 @@ public class Team {
         }
 
         for (int i = 0; i < palmonCount; i++) {
-            String selectedType = Input.select("Which entities.Palmon type do you want? ", palmonTypes.keySet());
+            String selectedType = Input.select("Which Palmon type do you want? ", palmonTypes.keySet());
             System.out.println("Palmons of type " + selectedType);
             printTable(palmonTypes.get(selectedType));
             Palmon validPalmon = getPalmonById("Which entities.Palmon do you want in your team? Enter its ID: ", palmonTypes.get(selectedType));

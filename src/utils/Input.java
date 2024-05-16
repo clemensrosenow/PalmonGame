@@ -17,8 +17,10 @@ public class Input {
     }
 
     public static boolean confirm(String prompt) {
-        return select(prompt, Set.of("yes", "no")).equals("yes");
-
+        enum Options {
+            yes, no
+        }
+        return Options.valueOf(select(prompt, Options.values(), "")).equals(Options.yes);
     }
 
     public static int number(String prompt) {
@@ -38,6 +40,7 @@ public class Input {
 
     public static int number(String prompt, int lowerBound, int upperBound) {
         int input = number(prompt);
+        //Used recursion to avoid complex looping
         if (input < lowerBound) {
             return number("Enter a value greater than or equal to " + lowerBound + ": ", lowerBound, upperBound);
         }
@@ -73,6 +76,29 @@ public class Input {
         return selection;
     }
 
+    
+    public static <T extends Enum<T>> String select(String prompt, T[] options, String defaultOption)
+    {
+        System.out.println("\n" + prompt);
 
+        List<String> optionList = Arrays.asList(Arrays.stream(options).map(option -> option.name()).toArray(String[]::new));
+        optionList.forEach(key -> System.out.println("- " + key));
+        System.out.print("Your choice: ");
+        String selection = scanner.nextLine();
 
+        //Error handling
+        while (!optionList.contains(selection)) {
+
+            //If available, select default option
+            if(!defaultOption.isEmpty()) {
+                System.out.println(defaultOption + " has been selected automatically.");
+                return defaultOption;
+            }
+
+            //Else, ask for new input
+            System.out.print("Select one of the provided options: ");
+            selection = scanner.nextLine();
+        }
+        return selection;
+    }
 }

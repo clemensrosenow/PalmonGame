@@ -1,21 +1,28 @@
 package utils;
 
-import utils.Input;
-
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class Localization {
+    enum Language {
+        English("en"), Deutsch("de");
+
+        final String countryCode;
+        Language(String countryCode) {
+            this.countryCode = countryCode;
+        }
+    }
     static final Map<String, String> languageOptions = Map.of("en", "English (default)", "de", "Deutsch");
-    static final String defaultLanguage = "en";
+    static final Language defaultLanguage = Language.English;
+    static Language userLanguage;
     static final String baseName = "resources/console_messages";
     static ResourceBundle consoleText;
 
     public static void configureLanguage() {
-        Locale.setDefault(new Locale(defaultLanguage));
-        String userLanguage = Input.select("What's your preferred language?", languageOptions);
-        consoleText = ResourceBundle.getBundle(baseName, new Locale(userLanguage));
+
+        Locale.setDefault(new Locale(defaultLanguage.countryCode));
+        String prompt = "What's your preferred language?";
+        userLanguage = Language.valueOf(Input.select(prompt, Language.values(), defaultLanguage.name()));
+        consoleText = ResourceBundle.getBundle(baseName, new Locale(userLanguage.countryCode));
     }
 
     public static String getMessage(String propertyKey) {

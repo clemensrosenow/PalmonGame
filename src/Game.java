@@ -17,7 +17,6 @@ public class Game {
     public static void main(String[] args) {
         CompletableFuture<Void> asyncFileLoading = CSVProcessing.loadCSVFiles();
         System.out.println("Welcome to Palmon!");
-
         //Setup
         Localization.configureLanguage();
         assignCharacterNames();
@@ -45,11 +44,6 @@ public class Game {
         Player loser;
         //Todo: inner class for results of winner / loser + fighting palmons
 
-        /*Todo: save fight results in CSV
-        *  -> columns: PalmonID, PlayerName, Palmon Status (survived or dead), GameResult, GameCount,
-        *
-        * */
-
 
         public void assembleTeams() {
             // entities.Palmon Count Selection
@@ -58,8 +52,7 @@ public class Game {
             int opponentPalmonCount = Input.number("How many Palmons does your opponent have in his team? ", 1, palmonCount);
 
             // Assemble Method Selection
-            Map<String, String> assembleMethods = Map.of("random", "randomly (default)", "id", "by ID", "type", "by Type");
-            String assembleMethod = Input.select("How do you want to select your Palmons?", assembleMethods);
+            Team.AssembleMethod assembleMethod = Team.AssembleMethod.valueOf(Input.select("By which attribute do you want to select your Palmons?", Team.AssembleMethod.values(), Team.AssembleMethod.random.name()));
 
             // Level Range Selection
             final int totalLevels = 100; //Based on max value of all rows in palmon_move.csv
@@ -74,11 +67,11 @@ public class Game {
 
             // Setup
             player.team = new Team(playerPalmonCount, minLevel, maxLevel);
-            player.team.assemble(Team.assembleMethod.valueOf(assembleMethod)); //Todo: Fix assembleMethod selection type
+            player.team.assemble(assembleMethod);
 
             // Opponent team always consists of random palmons in full level range
             opponent.team = new Team(opponentPalmonCount, 0, totalLevels);
-            opponent.team.assemble();
+            opponent.team.assembleRandomly();
         }
 
         public void fight() {
