@@ -3,7 +3,7 @@ package utils;
 import java.util.*;
 
 //Mini-Library for repeated user console input
-public class Input {
+public class UserInput {
     static Scanner scanner = new Scanner(System.in);
 
     public static String text(String prompt) {

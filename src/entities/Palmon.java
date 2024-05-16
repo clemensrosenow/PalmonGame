@@ -1,33 +1,30 @@
 package entities;
 
-import utils.Input;
 import utils.CSVProcessing;
+import utils.MaxHeap;
+import utils.UserInput;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
-import utils.MaxHeap;
+import java.util.stream.Collectors;
 
 public class Palmon {
+    public static final int maxMoves = 4;
     public final int id;
     public final String name;
-    private final int height;
-    private final int weight;
     public final String[] types = new String[2];
-    int hp;
+    public final int speed;
     private final int attack;
     private final int defense;
-    public final int speed;
-    private int level = 100;
-    public static final int maxMoves = 4;
     private final ArrayList<Move> moves = new ArrayList<>();
+    int hp;
+    private int level = 100;
 
     public Palmon(int id, String name, int height, int weight, String type1, String type2,
                   int hp, int attack, int defense, int speed) {
         this.id = id;
         this.name = name;
-        this.height = height;
-        this.weight = weight;
         this.types[0] = type1;
         this.types[1] = type2;
         this.hp = hp;
@@ -49,7 +46,7 @@ public class Palmon {
             }
         });
 
-        //get top 4 damage moves using delete method
+        //get top 4 damage moves using Max Heap delete method
         for (int i = 0; i < maxMoves; i++) {
             Integer maxDamageMoveId = possibleMoves.delete();
             if (maxDamageMoveId != null) {
@@ -58,7 +55,7 @@ public class Palmon {
         }
     }
 
-    // Checks if the entities.Palmon is combat-ready based on its HP
+    // Checks if the Palmon is combat-ready based on its HP
     public boolean isDefeated() {
         return hp <= 0;
     }
@@ -66,24 +63,34 @@ public class Palmon {
     public Move selectAttack() {
         System.out.println("Select your attacking move!");
         HashMap<String, String> options = new HashMap<>();
-        moves.forEach(move -> options.put(String.valueOf(move.id), move.name));
-        int selectedMoveId = Integer.parseInt(Input.select("Select your attacking move!", options));
+        ArrayList<Move> availableMoves = getAvailableMoves();
+        availableMoves.forEach(move -> options.put(String.valueOf(move.id), move.name));
+        int selectedMoveId = Integer.parseInt(UserInput.select("Select your attacking move!", options));
         return moves.stream().filter(move -> move.id == selectedMoveId).findFirst().get();
     }
 
     public Move getRandomAttack() {
-        return moves.get(new Random().nextInt(maxMoves));
+        return getAvailableMoves().get(new Random().nextInt(maxMoves));
     }
+
+    private ArrayList<Move> getAvailableMoves() {
+        return moves.stream().filter(move -> move.isAvailable()).collect(Collectors.toCollection(ArrayList::new));
+    }
+
     public void performAttack(Palmon victim, Move attack) {
+        System.out.println(this.name + "starts attacking.");
+        attack.usages++;
         if (!attack.hits()) {
-            System.out.println("Attack hasn't hit the enemy.");
+            System.out.println("Attack has missed the enemy.");
             return;
         }
 
-        int healthDecrease = this.attack - victim.defense + attack.damage;
-        float effectivity = CSVProcessing.effectivity.get(types[0]).get(victim.types[0]);
-
-        victim.hp -= (int) (healthDecrease * effectivity);
+        int rawDamage = this.attack - victim.defense + attack.damage;
+        float effectivity = CSVProcessing.effectivity.get(types[0]).get(victim.types[0]); //Use the primary type of attacker and victum to determine effectivity
+        int effectiveDamage = (int) (rawDamage * effectivity);
+        System.out.println(effectiveDamage + " damage points dealt with attack " + attack.name + ".");
+        victim.hp -= effectiveDamage;
+        System.out.println(victim.name + " has " + victim.hp + " hit points remaining.");
     }
 
     public void setRandomLevel(int min, int max) {

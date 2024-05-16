@@ -21,7 +21,7 @@ public class Localization {
 
         Locale.setDefault(new Locale(defaultLanguage.countryCode));
         String prompt = "What's your preferred language?";
-        userLanguage = Language.valueOf(Input.select(prompt, Language.values(), defaultLanguage.name()));
+        userLanguage = Language.valueOf(UserInput.select(prompt, Language.values(), defaultLanguage.name()));
         consoleText = ResourceBundle.getBundle(baseName, new Locale(userLanguage.countryCode));
     }
 

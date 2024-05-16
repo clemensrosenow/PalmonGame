@@ -6,7 +6,7 @@ public class Move {
     final String name;
     final int damage;
     private int maxUsages;
-    private int usages = 0;
+    public int usages = 0;
     final int accuracy;
     private final String type;
 
@@ -19,12 +19,8 @@ public class Move {
         this.type = type;
     }
 
-    public void useMove() {
-        if (usages < maxUsages) {
-            usages++;
-        } else {
-            System.out.println("Not usable");
-        }
+    public boolean isAvailable() {
+        return usages < maxUsages;
     }
 
     public boolean hits() {

@@ -1,8 +1,7 @@
 package entities;
 
-import utils.Input;
+import utils.UserInput;
 import utils.CSVProcessing;
-import utils.Localization;
 import resources.Constants;
 
 import java.util.*;
@@ -11,23 +10,27 @@ public class Team {
     public enum AssembleMethod {
         random, id, type;
     }
+
     final public static AssembleMethod defaultAssembleMethod = Team.AssembleMethod.random;
 
     public void assemble(AssembleMethod method) {
         switch (method) {
             case random:
                 assembleRandomly(CSVProcessing.palmons.size());
-                return;
+                break;
             case id:
                 assembleById();
-                return;
+                break;
             case type:
                 assembleByType();
         }
+        palmonIterator = palmons.iterator();
     }
 
-    public HashSet<Palmon> palmons;
-    int palmonCount;
+    private HashSet<Palmon> palmons;
+    public Iterator<Palmon> palmonIterator;
+
+    int  palmonCount;
     int minLevel;
     int maxLevel;
 
@@ -46,7 +49,9 @@ public class Team {
         return true;
     }
 
-
+    public Palmon getNextPalmon() {
+        return palmonIterator.hasNext() ? palmonIterator.next() : null;
+    }
 
     public void assembleRandomly(int range) {
         Random random = new Random();
@@ -81,9 +86,9 @@ public class Team {
         }
 
         for (int i = 0; i < palmonCount; i++) {
-            String selectedType = Input.select("Which Palmon type do you want? ", palmonTypes.keySet());
+            String selectedType = UserInput.select("Which Palmon type do you want? ", palmonTypes.keySet());
             System.out.println("Palmons of type " + selectedType);
-            printTable(palmonTypes.get(selectedType));
+            //printTable(palmonTypes.get(selectedType));
             Palmon validPalmon = getPalmonById("Which entities.Palmon do you want in your team? Enter its ID: ", palmonTypes.get(selectedType));
             if (add(validPalmon)) System.out.println(validPalmon.name + " has been added to your team.");
         }
@@ -92,7 +97,8 @@ public class Team {
 
     private void assembleById() {
         System.out.println("Now select your favorite Palmons by their " + AssembleMethod.id.name() + "!");
-        printTable(CSVProcessing.palmons);
+        //Todo: Create table utility
+        //printTable(CSVProcessing.palmons);
         for (int i = 0; i < palmonCount; i++) {
             Palmon validPalmon = getPalmonById("Which Palmon do you want in your team? Enter its ID: ", CSVProcessing.palmons);
             if(add(validPalmon)) System.out.println(validPalmon.name + " has been added to your team.");
@@ -100,7 +106,7 @@ public class Team {
     }
 
     private Palmon getPalmonById(String prompt, ArrayList<Palmon> dataSource) {
-        int selectedId = Input.number(prompt,1,Constants.maxPalmonId);
+        int selectedId = UserInput.number(prompt,1,Constants.maxPalmonId);
         Optional<Palmon> optionalPalmon = dataSource.stream().filter(palmon -> palmon.id == selectedId).findFirst();
 
         if(optionalPalmon.isEmpty()) {
@@ -117,34 +123,4 @@ public class Team {
         //Use selection utilities.Input to display all palmons with id
         //Get multiple ids, seperated with Enter
         //Check that id is valid and palmon not already in Team
-
-    private static void printTable(ArrayList<Palmon> rows) {
-        //TODO: Adjust string length to 26 if space is available
-        //TODO: Make more adaptive to column width and content
-        System.out.printf("┌───────┬──────────────────────┐%n");
-        System.out.printf("│ %5s │ %-20s │%n", "ID", "Name");
-
-        for (Palmon entry: rows) {
-            System.out.printf("├───────┼──────────────────────┤%n");
-            System.out.printf("│ %5d │ %-20s │%n", entry.id, entry.name);
-        }
-        System.out.printf("└───────┴──────────────────────┘%n");
-    }
-    public static void main(String[] args) {
-
-        System.out.printf("┌───────┬──────────────────────┐%n");
-        System.out.printf("│ %5s │ %-20s │%n", "ID", "Name");
-
-
-        System.out.printf("├───────┼──────────────────────┤%n");
-        System.out.printf("│ %5d │ %-20s │%n", 4, "Palmon");
-
-        System.out.printf("├───────┼──────────────────────┤%n");
-        System.out.printf("│ %5d │ %-20s │%n", 103, "Crazy Attacker");
-
-        System.out.printf("├───────┼──────────────────────┤%n");
-        System.out.printf("│ %5d │ %-20s │%n", 10823, "Long Sick Palmon Name");
-
-        System.out.printf("└───────┴──────────────────────┘%n");
-    }
 }
