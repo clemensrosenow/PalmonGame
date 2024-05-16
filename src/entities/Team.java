@@ -3,26 +3,26 @@ package entities;
 import utils.Input;
 import utils.CSVProcessing;
 import utils.Localization;
+import resources.Constants;
 
 import java.util.*;
 
 public class Team {
-    public static AssembleMethod assembleMethod;
     public enum AssembleMethod {
         random, id, type;
     }
     final public static AssembleMethod defaultAssembleMethod = Team.AssembleMethod.random;
 
-    public void assemble(AssembleMethod assembleMethod) {
-        switch (assembleMethod) {
+    public void assemble(AssembleMethod method) {
+        switch (method) {
+            case random:
+                assembleRandomly(CSVProcessing.palmons.size());
+                return;
             case id:
                 assembleById();
-                break;
+                return;
             case type:
                 assembleByType();
-                break;
-            case random: default:
-                assembleRandomly();
         }
     }
 
@@ -48,12 +48,12 @@ public class Team {
 
 
 
-    public void assembleRandomly() {
+    public void assembleRandomly(int range) {
         Random random = new Random();
         for (int i = 0; i < palmonCount; i++) {
             Palmon randomPalmon;
             do {
-                int randomIndex = random.nextInt(CSVProcessing.palmons.size());
+                int randomIndex = random.nextInt(range);
                 randomPalmon = CSVProcessing.palmons.get(randomIndex);
             } while (!add(randomPalmon));
             System.out.println(randomPalmon.name + " has been added to your team.");
@@ -70,7 +70,7 @@ public class Team {
             }
         }
 
-        System.out.println("Now select your favorite Palmons by their type!");
+        System.out.println("Now select your favorite Palmons by their " + AssembleMethod.type.name() + "!");
 
         // Output the data
         for(Map.Entry<String, ArrayList<Palmon>> entry : palmonTypes.entrySet()) {
@@ -91,16 +91,16 @@ public class Team {
 
 
     private void assembleById() {
-        System.out.println("Now select your favorite Palmons by their ID!");
+        System.out.println("Now select your favorite Palmons by their " + AssembleMethod.id.name() + "!");
         printTable(CSVProcessing.palmons);
         for (int i = 0; i < palmonCount; i++) {
-            Palmon validPalmon = getPalmonById("Which entities.Palmon do you want in your team? Enter its ID: ", CSVProcessing.palmons);
+            Palmon validPalmon = getPalmonById("Which Palmon do you want in your team? Enter its ID: ", CSVProcessing.palmons);
             if(add(validPalmon)) System.out.println(validPalmon.name + " has been added to your team.");
         }
     }
 
     private Palmon getPalmonById(String prompt, ArrayList<Palmon> dataSource) {
-        int selectedId = Input.number(prompt,1,10194);
+        int selectedId = Input.number(prompt,1,Constants.maxPalmonId);
         Optional<Palmon> optionalPalmon = dataSource.stream().filter(palmon -> palmon.id == selectedId).findFirst();
 
         if(optionalPalmon.isEmpty()) {

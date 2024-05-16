@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.*;
 
+import resources.Constants;
+
 public class Game {
     static Player player = new Player();
     static Player opponent = new Player();
@@ -47,31 +49,29 @@ public class Game {
 
         public void assembleTeams() {
             // entities.Palmon Count Selection
-            final int palmonCount = 1092; //Checked in entities.Palmon CSV
-            int playerPalmonCount = Input.number("How many Palmons do you want to have in your team? ", 1, palmonCount);
-            int opponentPalmonCount = Input.number("How many Palmons does your opponent have in his team? ", 1, palmonCount);
+            int playerPalmonCount = Input.number("How many Palmons do you want to have in your team? ", 1, Constants.PalmonCount);
+            int opponentPalmonCount = Input.number("How many Palmons does your opponent have in his team? ", 1, Constants.PalmonCount);
 
             // Assemble Method Selection
             Team.AssembleMethod assembleMethod = Team.AssembleMethod.valueOf(Input.select("By which attribute do you want to select your Palmons?", Team.AssembleMethod.values(), Team.AssembleMethod.random.name()));
 
-            // Level Range Selection
-            final int totalLevels = 100; //Based on max value of all rows in palmon_move.csv
+            // Player Level Range Selection
             int minLevel = 0;
-            int maxLevel = totalLevels;
+            int maxLevel = Constants.totalLevels;
 
+            // Set optional level range
             if (Input.confirm("Do you want to set a level range for your Palmons?")) {
-                minLevel = Input.number("What's the lowest possible level of your Palmons? ", 0, totalLevels);
-                maxLevel = Input.number("What's the highest possible level of your Palmons? ", minLevel, totalLevels);
+                minLevel = Input.number("What's the lowest possible level of your Palmons? ", 0, Constants.totalLevels);
+                maxLevel = Input.number("What's the highest possible level of your Palmons? ", minLevel, Constants.totalLevels);
             }
-
 
             // Setup
             player.team = new Team(playerPalmonCount, minLevel, maxLevel);
             player.team.assemble(assembleMethod);
 
-            // Opponent team always consists of random palmons in full level range
-            opponent.team = new Team(opponentPalmonCount, 0, totalLevels);
-            opponent.team.assembleRandomly();
+            // Opponent team always consists of randomly selected palmons in full level range
+            opponent.team = new Team(opponentPalmonCount, 0, Constants.totalLevels);
+            opponent.team.assemble(Team.AssembleMethod.random);
         }
 
         public void fight() {
