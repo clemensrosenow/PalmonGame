@@ -1,13 +1,12 @@
 package entities;
 
+import resources.Constants;
 import utils.CSVProcessing;
 import utils.MaxHeap;
+import utils.TableOutput;
 import utils.UserInput;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Palmon {
@@ -16,11 +15,11 @@ public class Palmon {
     public final String name;
     public final String[] types = new String[2];
     public final int speed;
-    private final int attack;
-    private final int defense;
+    public final int attack;
+    public final int defense;
     private final HashSet<Move> moves = new HashSet<>();
-    int hp;
-    private int level = 100;
+    public int hp;
+    int level = 100;
 
     public Palmon(int id, String name, int height, int weight, String type1, String type2,
                   int hp, int attack, int defense, int speed) {
@@ -62,25 +61,39 @@ public class Palmon {
     }
 
     public Move selectAttack() {
-        System.out.println("Select your attacking move!");
-        //HashMap<String, String> options = new HashMap<>();
-        //ArrayList<Move> availableMoves = getAvailableMoves();
-        //availableMoves.forEach(move -> options.put(String.valueOf(move.id), move.name));
-        //int selectedMoveId = Integer.parseInt(UserInput.select("Select your attacking move!", options));
-        //Todo Print table and accept name Input (or Id)
-        //int selectedMoveId = Integer.parseInt((UserInput.select("Select your attacking move!", moves)));
-        //return moves.stream().filter(move -> move.id == selectedMoveId).findFirst().get();
-        return moves.stream().filter(move -> move.id == 1).findFirst().get(); //Todo: Remove and fix
+        System.out.println("\nSelect your attacking move!");
+
+        ArrayList<Move> availableMoves = getAvailableMoves();
+
+        ArrayList< TableOutput.Column> columns = new ArrayList<>();
+        columns.add(new TableOutput.Column("id", 5, TableOutput.Column.Formatting.digit, availableMoves.stream().map(move -> move.id).toArray()));
+        columns.add(new TableOutput.Column("name", 20, TableOutput.Column.Formatting.string, availableMoves.stream().map(move -> move.name).toArray()));
+        columns.add(new TableOutput.Column("damage", 6, TableOutput.Column.Formatting.digit, availableMoves.stream().map(move -> move.damage).toArray()));
+        columns.add(new TableOutput.Column("accuracy", 8, TableOutput.Column.Formatting.digit, availableMoves.stream().map(move -> move.accuracy).toArray()));
+        columns.add(new TableOutput.Column("type", 10, TableOutput.Column.Formatting.string, availableMoves.stream().map(move -> move.type).toArray()));
+        new TableOutput(columns).print();
+
+        return selectMoveById("Enter the ID of the move you want to use: ", availableMoves);
+    }
+
+    private Move selectMoveById(String prompt, ArrayList<Move> dataSource) {
+        int selectedId = UserInput.number(prompt,1, Constants.maxMoveId);
+
+        Optional<Move> optionalMove = dataSource.stream().filter(move -> move.id == selectedId).findFirst();
+
+        return optionalMove.orElseGet(() -> selectMoveById("No Move exists for this ID. Enter a different one: ", dataSource));
+
     }
 
     public Move getRandomAttack() {
+        Random random = new Random();
         ArrayList<Move> availableMoves = getAvailableMoves();
-        return availableMoves.get(new Random().nextInt(availableMoves.size()));
+        return availableMoves.get(random.nextInt(availableMoves.size()));
     }
 
     private ArrayList<Move> getAvailableMoves() {
         //Filters all moves by their availability
-        return moves.stream().filter(move -> move.isAvailable()).collect(Collectors.toCollection(ArrayList::new));
+        return moves.stream().filter(Move::isAvailable).collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void performAttack(Palmon victim, Move attack) {

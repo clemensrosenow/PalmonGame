@@ -11,7 +11,6 @@ public class Localization {
             this.countryCode = countryCode;
         }
     }
-    static final Map<String, String> languageOptions = Map.of("en", "English (default)", "de", "Deutsch");
     static final Language defaultLanguage = Language.English;
     static Language userLanguage;
     static final String baseName = "resources/console_messages";

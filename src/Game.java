@@ -14,7 +14,6 @@ public class Game {
         CompletableFuture<Void> asyncFileLoading = CSVProcessing.loadCSVFiles(); //Start processing CSV files in seperate thread
         System.out.println("Welcome to Palmon!");
 
-        System.out.println("OMG".repeat(3));
         //Setup
         Localization.configureLanguage();
         user.setName("name_player_question");

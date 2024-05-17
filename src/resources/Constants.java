@@ -5,4 +5,5 @@ public class Constants {
     public final static int maxPalmonId = 10194;
     public final static int PalmonCount = 1092;
     public final static int totalLevels = 100;
+    public final static int maxMoveId = 10008;
 }

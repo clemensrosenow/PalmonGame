@@ -32,10 +32,12 @@ public class Fight {
         // Player Team Setup
         user.team = new Team(playerPalmonCount, minLevel, maxLevel);
         Team.AssembleMethod assembleMethod = Team.AssembleMethod.valueOf(UserInput.select("By which attribute do you want to select your Palmons?", Team.AssembleMethod.values(), Team.AssembleMethod.random.name()));
+        System.out.println("\nYour team consists of the following Palmons:");
         user.team.assemble(assembleMethod);
 
         // Opponent team always consists of randomly selected palmons in full level range
         opponent.team = new Team(opponentPalmonCount, 0, Constants.totalLevels);
+        System.out.println("\nYour opponent's team consists of the following Palmons:");
         opponent.team.assemble(Team.AssembleMethod.random);
     }
 
