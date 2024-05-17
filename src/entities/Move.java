@@ -5,22 +5,24 @@ public class Move {
     public final int id;
     final String name;
     final int damage;
-    private int maxUsages;
-    public int usages = 0;
+    public int availableUsages;
     final int accuracy;
-    private final String type;
+    final String type;
 
     public Move(int id, String name, int damage, int maxUsages, int accuracy, String type) {
         this.id = id;
         this.name = name;
         this.damage = damage;
-        this.maxUsages = maxUsages;
+        this.availableUsages = maxUsages;
         this.accuracy = accuracy;
         this.type = type;
     }
 
+    public void use() {
+        availableUsages--;
+    }
     public boolean isAvailable() {
-        return usages < maxUsages;
+        return availableUsages > 0;
     }
 
     public boolean hits() {

@@ -8,6 +8,8 @@ public class Fight {
     Player opponent;
     Palmon fightingPlayerPalmon;
     Palmon fightingOpponentPalmon;
+    Player winner;
+    Player loser;
 
     public Fight(Player user, Player opponent) {
         this.user = user;
@@ -73,8 +75,8 @@ public class Fight {
 
 
     public void determineResult() {
-        Player winner = fightingOpponentPalmon == null ? user : opponent; //User wins when opponent has no remaining palmons
-        Player loser = fightingPlayerPalmon == null ? user : opponent; //User loses when he has no remaining palmons
+         winner = fightingOpponentPalmon == null ? user : opponent; //User wins when opponent has no remaining palmons
+         loser = fightingPlayerPalmon == null ? user : opponent; //User loses when he has no remaining palmons
 
         System.out.println(winner.name + " has won.");
         System.out.println(loser.name + " has lost.");

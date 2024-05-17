@@ -14,6 +14,7 @@ public class Team {
     final public static AssembleMethod defaultAssembleMethod = Team.AssembleMethod.random;
 
     public void assemble(AssembleMethod method) {
+        palmons = new HashSet<>(); //Reset previous team on restart
         switch (method) {
             case random:
                 assembleRandomly(CSVProcessing.palmons.size());
@@ -30,7 +31,7 @@ public class Team {
     private HashSet<Palmon> palmons;
     public Iterator<Palmon> palmonIterator;
 
-    int  palmonCount;
+    int palmonCount;
     int minLevel;
     int maxLevel;
 
@@ -66,6 +67,7 @@ public class Team {
     }
 
     private void assembleByType() {
+        //Todo: Table Output Loop
         //Setup types and according list of palmons
         HashMap<String, ArrayList<Palmon>> palmonTypes = new HashMap<>();
         for (Palmon palmon : CSVProcessing.palmons) {

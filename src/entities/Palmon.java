@@ -6,6 +6,7 @@ import utils.UserInput;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,7 @@ public class Palmon {
     public final int speed;
     private final int attack;
     private final int defense;
-    private final ArrayList<Move> moves = new ArrayList<>();
+    private final HashSet<Move> moves = new HashSet<>();
     int hp;
     private int level = 100;
 
@@ -35,9 +36,10 @@ public class Palmon {
 
 
     public void setMoves() {
-        //insert all possible moves filtered by level into max heap
+        //insert all possible moves filtered by level into max heap data structure
         MaxHeap possibleMoves = new MaxHeap();
         CSVProcessing.palmonMoves.get(id).forEach((learnedOnLevel, moveId) -> {
+            //make insertion filtered by level
             if (learnedOnLevel >= level) {
                 Move move = CSVProcessing.getMoveById(moveId);
                 if (move != null) {
@@ -49,9 +51,8 @@ public class Palmon {
         //get top 4 damage moves using Max Heap delete method
         for (int i = 0; i < maxMoves; i++) {
             Integer maxDamageMoveId = possibleMoves.delete();
-            if (maxDamageMoveId != null) {
-                moves.set(i, CSVProcessing.getMoveById(maxDamageMoveId));
-            }
+            if (maxDamageMoveId == null) { break;}
+            moves.add(CSVProcessing.getMoveById(maxDamageMoveId));
         }
     }
 
@@ -62,31 +63,37 @@ public class Palmon {
 
     public Move selectAttack() {
         System.out.println("Select your attacking move!");
-        HashMap<String, String> options = new HashMap<>();
-        ArrayList<Move> availableMoves = getAvailableMoves();
-        availableMoves.forEach(move -> options.put(String.valueOf(move.id), move.name));
-        int selectedMoveId = Integer.parseInt(UserInput.select("Select your attacking move!", options));
-        return moves.stream().filter(move -> move.id == selectedMoveId).findFirst().get();
+        //HashMap<String, String> options = new HashMap<>();
+        //ArrayList<Move> availableMoves = getAvailableMoves();
+        //availableMoves.forEach(move -> options.put(String.valueOf(move.id), move.name));
+        //int selectedMoveId = Integer.parseInt(UserInput.select("Select your attacking move!", options));
+        //Todo Print table and accept name Input (or Id)
+        //int selectedMoveId = Integer.parseInt((UserInput.select("Select your attacking move!", moves)));
+        //return moves.stream().filter(move -> move.id == selectedMoveId).findFirst().get();
+        return moves.stream().filter(move -> move.id == 1).findFirst().get(); //Todo: Remove and fix
     }
 
     public Move getRandomAttack() {
-        return getAvailableMoves().get(new Random().nextInt(maxMoves));
+        ArrayList<Move> availableMoves = getAvailableMoves();
+        return availableMoves.get(new Random().nextInt(availableMoves.size()));
     }
 
     private ArrayList<Move> getAvailableMoves() {
+        //Filters all moves by their availability
         return moves.stream().filter(move -> move.isAvailable()).collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void performAttack(Palmon victim, Move attack) {
         System.out.println(this.name + "starts attacking.");
-        attack.usages++;
+        attack.use();
+
         if (!attack.hits()) {
             System.out.println("Attack has missed the enemy.");
             return;
         }
 
         int rawDamage = this.attack - victim.defense + attack.damage;
-        float effectivity = CSVProcessing.effectivity.get(types[0]).get(victim.types[0]); //Use the primary type of attacker and victum to determine effectivity
+        float effectivity = CSVProcessing.effectivity.get(types[0]).get(victim.types[0]); //Use the primary type of attacker and victim to determine effectivity
         int effectiveDamage = (int) (rawDamage * effectivity);
         System.out.println(effectiveDamage + " damage points dealt with attack " + attack.name + ".");
         victim.hp -= effectiveDamage;
