@@ -1,4 +1,4 @@
-package utils;
+package utilities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,31 +74,7 @@ public class TableOutput {
         printRow(columns.stream().map(column -> column.name).toArray(), true);
     }
 
-    /*private void printEntry(T row) {
-        //Example of desired format: "│ %5d │ %-20s │%n", entry.id, entry.name"
-        char columnDivider = '│';
-        StringBuilder line = new StringBuilder();
-        line.append(columnDivider);
-
-
-        for (Column column: columns) {
-            line.append(" %");
-            if (column.leftTextAlignment) { // right by default
-                line.append("-"); // Leads to left-aligned text in combination with printf()
-            }
-            line.append(column.characterLength);
-            line.append("s "); //Column names are always displayed as strings
-            line.append(columnDivider);
-        }
-        line.append("%n"); //Newline character to print on own line
-        Object[] columnNames = columns.stream().map(column -> column.name).toArray(); //Todo: Possible correction varargs of printf: toArray(new String[0]);
-        System.out.printf(String.valueOf(line), columnNames);
-
-        //System.out.printf(""); //Todo
-    }*/
-
     private void printEntry(int rowIndex) {
-        //Todo: Get column attributes as Object[]
         printRow(columns.stream().map(column -> column.entries[rowIndex]).toArray(), false);
     }
 

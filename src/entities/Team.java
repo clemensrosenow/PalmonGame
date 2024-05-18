@@ -1,56 +1,40 @@
 package entities;
 
-import utils.TableOutput;
-import utils.UserInput;
-import utils.CSVProcessing;
-import resources.Constants;
+import interfaces.TeamAssembly;
+import utilities.TableOutput;
+import utilities.UserInput;
+import utilities.CSVProcessing;
 
 import java.util.*;
 
-public class Team {
-    public enum AssembleMethod {
-        random, id, type;
-    }
-
+//Todo: Associate team with fight instead of player to allow for multiple fights, else reset team after each fight
+public class Team implements TeamAssembly {
     final public static AssembleMethod defaultAssembleMethod = Team.AssembleMethod.random;
-
-    public void assemble(AssembleMethod method) {
-        palmons = new HashSet<>(); //Reset previous team on restart
-        switch (method) {
-            case random:
-                assembleRandomly();
-                break;
-            case id:
-                assembleById();
-                break;
-            case type:
-                assembleByType();
-        }
-        printTable(new ArrayList<>(palmons));
-        palmonIterator = palmons.iterator();
-    }
-
-    private HashSet<Palmon> palmons;
-    public Iterator<Palmon> palmonIterator;
-
-    int totalPalmonCount;
+    private Iterator<Palmon> fightingQueue;
+    public Palmon fightingPalmon;
+    int palmonCount;
     int minLevel;
     int maxLevel;
-
+    public final HashSet<Palmon> palmons;
     public Team(int palmonCount, int minLevel, int maxLevel) {
         this.palmons = new HashSet<>();
-        this.totalPalmonCount = palmonCount;
+        this.palmonCount = palmonCount;
         this.minLevel = minLevel;
         this.maxLevel = maxLevel;
+    }
+
+    private void setupFightingQueue() {
+        //Reflects a queue of all team palmons after assembly
+        fightingQueue = palmons.iterator();
+        fightingPalmon = fightingQueue.next();
     }
 
     boolean palmonExistsInTeam(Palmon palmon) {
         return palmons.contains(palmon);
     }
 
-    boolean assembleIsUncompleted()
-    {
-        return palmons.size() < totalPalmonCount;
+    boolean assemblyUncompleted() {
+        return palmons.size() < palmonCount;
     }
 
     void add(Palmon palmon) {
@@ -59,63 +43,72 @@ public class Team {
         palmons.add(palmon);
     }
 
-    public Palmon getNextPalmon() {
-        return palmonIterator.hasNext() ? palmonIterator.next() : null;
+    public void swapFightingPalmon() {
+        fightingPalmon = fightingQueue.hasNext() ? fightingQueue.next() : null;
     }
 
-    private void assembleRandomly() {
+    @Override
+    public void assembleRandomly() {
         Random random = new Random();
         int range = CSVProcessing.palmons.size();
-        while(assembleIsUncompleted()) {
+        while (assemblyUncompleted()) {
             Palmon randomPalmon = CSVProcessing.palmons.get(random.nextInt(range));
             if (!palmonExistsInTeam(randomPalmon)) {
                 add(randomPalmon);
             }
         }
+        setupFightingQueue();
     }
 
-    private void assembleByType() {
+    @Override
+    public void assembleByType() {
         //Group palmons by type in a HashMap
         HashMap<String, ArrayList<Palmon>> palmonTypes = new HashMap<>();
         for (Palmon palmon : CSVProcessing.palmons) {
             for (String type : palmon.types) {
-                palmonTypes.putIfAbsent(type,new ArrayList<>());
+                palmonTypes.putIfAbsent(type, new ArrayList<>());
                 palmonTypes.get(type).add(palmon);
             }
         }
+        palmonTypes.remove(""); //Absence of second type not considered a type
 
         //Output selectable types
         System.out.println("Now select your favorite Palmons by their " + AssembleMethod.type.name() + "!");
-        Set<String> availableTypes = palmonTypes.keySet();
+        ArrayList<String> availableTypes = new ArrayList<>(palmonTypes.keySet());
+        Collections.sort(availableTypes); //Sort types in ascending alphabetical order
 
-        while(assembleIsUncompleted()){
+        while (assemblyUncompleted()) {
             String selectedType = UserInput.select("Which Palmon type do you want? ", availableTypes);
             ArrayList<Palmon> availablePalmons = palmonTypes.get(selectedType);
             printTable(availablePalmons);
-            addPalmonById("Which Palmon do you want in your team? Enter its ID: ", availablePalmons);
+            addPalmonById("Which " + selectedType + " Palmon do you want in your team? Enter its ID: ", availablePalmons);
         }
+        setupFightingQueue();
     }
 
-    private void assembleById() {
+    @Override
+    public void assembleById() {
         System.out.println("Now select your favorite Palmons by their " + AssembleMethod.id.name() + "!");
 
         printTable(CSVProcessing.palmons);
 
-        while (assembleIsUncompleted()) {
+        while (assemblyUncompleted()) {
             addPalmonById("Which Palmon do you want in your team? Enter its ID: ", CSVProcessing.palmons);
         }
+        setupFightingQueue();
     }
 
     private Palmon addPalmonById(String prompt, ArrayList<Palmon> dataSource) {
-        int selectedId = UserInput.number(prompt,1,Constants.maxPalmonId);
+        final int maxPalmonId = 10194;
+        int selectedId = UserInput.number(prompt, 1, maxPalmonId);
         Optional<Palmon> optionalPalmon = dataSource.stream().filter(palmon -> palmon.id == selectedId).findFirst();
 
-        if(optionalPalmon.isEmpty()) {
+        if (optionalPalmon.isEmpty()) {
             return addPalmonById("No Palmon exists for this ID. Enter a different one: ", dataSource);
         }
 
         Palmon selectedPalmon = optionalPalmon.get();
-        if(palmonExistsInTeam(selectedPalmon)) {
+        if (palmonExistsInTeam(selectedPalmon)) {
             return addPalmonById("The selected Palmon is already in your team. Please select a different one: ", dataSource);
         }
 
@@ -128,12 +121,16 @@ public class Team {
         ArrayList<TableOutput.Column> columns = new ArrayList<>();
         columns.add(new TableOutput.Column("id", 5, TableOutput.Column.Formatting.digit, dataSource.stream().map(palmon -> palmon.id).toArray()));
         columns.add(new TableOutput.Column("name", 26, TableOutput.Column.Formatting.string, dataSource.stream().map(palmon -> palmon.name).toArray()));
-        columns.add(new TableOutput.Column("types", 20, TableOutput.Column.Formatting.string, dataSource.stream().map(palmon -> palmon.types[0] + (palmon.types[1].isEmpty()? "" : ", " + palmon.types[1])).toArray()));
+        columns.add(new TableOutput.Column("types", 18, TableOutput.Column.Formatting.string, dataSource.stream().map(palmon -> palmon.types[0] + (palmon.types[1].isEmpty() ? "" : ", " + palmon.types[1])).toArray()));
         columns.add(new TableOutput.Column("hp", 3, TableOutput.Column.Formatting.digit, dataSource.stream().map(palmon -> palmon.hp).toArray()));
         columns.add(new TableOutput.Column("attack", 6, TableOutput.Column.Formatting.digit, dataSource.stream().map(palmon -> palmon.attack).toArray()));
         columns.add(new TableOutput.Column("defense", 7, TableOutput.Column.Formatting.digit, dataSource.stream().map(palmon -> palmon.defense).toArray()));
         columns.add(new TableOutput.Column("speed", 5, TableOutput.Column.Formatting.digit, dataSource.stream().map(palmon -> palmon.speed).toArray()));
 
         new TableOutput(new ArrayList<>(columns)).print();
+    }
+
+    public enum AssembleMethod {
+        random, id, type
     }
 }

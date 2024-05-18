@@ -2,6 +2,7 @@ package entities;
 import java.util.Random;
 
 public class Move {
+    public final static int medianUnlockLevel = 15;
     public final int id;
     final String name;
     final int damage;

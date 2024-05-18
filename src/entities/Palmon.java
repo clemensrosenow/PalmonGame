@@ -1,15 +1,17 @@
 package entities;
 
-import resources.Constants;
-import utils.CSVProcessing;
-import utils.MaxHeap;
-import utils.TableOutput;
-import utils.UserInput;
+import utilities.CSVProcessing;
+import utilities.MaxHeap;
+import utilities.TableOutput;
+import utilities.UserInput;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Palmon {
+    public final static int lowestLevelPossible = 0;
+    public final static int highestLevelPossible = 100;
+    public final static int totalCount = 1092;
     public static final int maxMoves = 4;
     public final int id;
     public final String name;
@@ -19,7 +21,9 @@ public class Palmon {
     public final int defense;
     private final HashSet<Move> moves = new HashSet<>();
     public int hp;
-    int level = 100;
+    int level;
+
+
 
     public Palmon(int id, String name, int height, int weight, String type1, String type2,
                   int hp, int attack, int defense, int speed) {
@@ -31,11 +35,12 @@ public class Palmon {
         this.attack = attack;
         this.defense = defense;
         this.speed = speed;
+        this.level = highestLevelPossible;
     }
 
 
     public void setMoves() {
-        //insert all possible moves filtered by level into max heap data structure
+        //Insert all possible moves filtered by level into custom MaxHeap data structure
         MaxHeap possibleMoves = new MaxHeap();
         CSVProcessing.palmonMoves.get(id).forEach((learnedOnLevel, moveId) -> {
             //make insertion filtered by level
@@ -60,12 +65,19 @@ public class Palmon {
         return hp <= 0;
     }
 
-    public Move selectAttack() {
+    private Move selectAttack(boolean randomSelection) {
+        if(randomSelection) {
+            Random random = new Random();
+            ArrayList<Move> availableMoves = getAvailableMoves();
+            return availableMoves.get(random.nextInt(availableMoves.size()));
+        }
+
         System.out.println("\nSelect your attacking move!");
 
         ArrayList<Move> availableMoves = getAvailableMoves();
 
         ArrayList< TableOutput.Column> columns = new ArrayList<>();
+        //No column for remaining usages because already implied by availability
         columns.add(new TableOutput.Column("id", 5, TableOutput.Column.Formatting.digit, availableMoves.stream().map(move -> move.id).toArray()));
         columns.add(new TableOutput.Column("name", 20, TableOutput.Column.Formatting.string, availableMoves.stream().map(move -> move.name).toArray()));
         columns.add(new TableOutput.Column("damage", 6, TableOutput.Column.Formatting.digit, availableMoves.stream().map(move -> move.damage).toArray()));
@@ -77,27 +89,23 @@ public class Palmon {
     }
 
     private Move selectMoveById(String prompt, ArrayList<Move> dataSource) {
-        int selectedId = UserInput.number(prompt,1, Constants.maxMoveId);
+        final int maxMoveId = 10008;
+        int selectedId = UserInput.number(prompt,1, maxMoveId);
 
         Optional<Move> optionalMove = dataSource.stream().filter(move -> move.id == selectedId).findFirst();
 
         return optionalMove.orElseGet(() -> selectMoveById("No Move exists for this ID. Enter a different one: ", dataSource));
-
     }
 
-    public Move getRandomAttack() {
-        Random random = new Random();
-        ArrayList<Move> availableMoves = getAvailableMoves();
-        return availableMoves.get(random.nextInt(availableMoves.size()));
-    }
 
     private ArrayList<Move> getAvailableMoves() {
         //Filters all moves by their availability
         return moves.stream().filter(Move::isAvailable).collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public void performAttack(Palmon victim, Move attack) {
+    public void performAttack(Palmon victim, boolean randomMoveSelection) { //Todo: Merge with select attack because directly interconnected
         System.out.println(this.name + "starts attacking.");
+        Move attack = selectAttack(randomMoveSelection);
         attack.use();
 
         if (!attack.hits()) {

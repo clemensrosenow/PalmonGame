@@ -1,8 +1,8 @@
 package entities;
 
-import utils.CSVProcessing;
-import utils.Localization;
-import utils.UserInput;
+import utilities.CSVProcessing;
+import utilities.Localization;
+import utilities.UserInput;
 
 public class Player {
     public String name;

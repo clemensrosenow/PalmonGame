@@ -1,13 +1,13 @@
 package entities;
 
-import resources.Constants;
-import utils.UserInput;
+import interfaces.TeamAssembly;
+import utilities.UserInput;
+
+import java.util.ArrayList;
 
 public class Fight {
     Player user;
     Player opponent;
-    Palmon fightingPlayerPalmon;
-    Palmon fightingOpponentPalmon;
     Player winner;
     Player loser;
 
@@ -17,69 +17,86 @@ public class Fight {
     }
 
     public void assembleTeams() {
-        // Palmon Count Selection
-        int playerPalmonCount = UserInput.number("How many Palmons do you want to have in your team? ", 1, Constants.PalmonCount);
-        int opponentPalmonCount = UserInput.number("How many Palmons does your opponent have in his team? ", 1, Constants.PalmonCount);
+        assembleUserTeam();
+        assembleOpponentTeam();
+    }
 
-        // Player optional Level Range Selection
-        int minLevel = 0;
-        int maxLevel = Constants.totalLevels;
+    private void assembleUserTeam() {
+        int playerPalmonCount = UserInput.number("How many Palmons do you want to have in your team? ", 1, Palmon.totalCount);
+        final int minimumRange = Palmon.highestLevelPossible - Move.medianUnlockLevel;
+        int minLevel = Palmon.lowestLevelPossible;
+        int maxLevel = Palmon.highestLevelPossible;
+
+        // Optional Level Range Selection
         if (UserInput.confirm("Do you want to set a level range for your Palmons?")) {
-            minLevel = UserInput.number("Lowest possible level: ", 0, Constants.totalLevels);
-            maxLevel = UserInput.number("Highest possible level: ", minLevel, Constants.totalLevels);
+            minLevel = UserInput.number("Lowest possible level: ", Palmon.lowestLevelPossible, Palmon.highestLevelPossible - minimumRange);
+            maxLevel = UserInput.number("Highest possible level: ", minLevel + minimumRange, Palmon.highestLevelPossible);
         }
 
         // Player Team Setup
         user.team = new Team(playerPalmonCount, minLevel, maxLevel);
-        Team.AssembleMethod assembleMethod = Team.AssembleMethod.valueOf(UserInput.select("By which attribute do you want to select your Palmons?", Team.AssembleMethod.values(), Team.AssembleMethod.random.name()));
+        TeamAssembly.Method assemblyMethod = TeamAssembly.Method.valueOf(UserInput.select("By which attribute do you want to select your Palmons?", TeamAssembly.Method.values()));
+        switch (assemblyMethod) {
+            case id:
+                user.team.assembleById();
+                break;
+            case type:
+                user.team.assembleByType();
+                break;
+            case random:
+            default:
+                user.team.assembleRandomly();
+        }
         System.out.println("\nYour team consists of the following Palmons:");
-        user.team.assemble(assembleMethod);
+        user.team.printTable(new ArrayList<>(user.team.palmons));
+    }
 
-        // Opponent team always consists of randomly selected palmons in full level range
-        opponent.team = new Team(opponentPalmonCount, 0, Constants.totalLevels);
-        System.out.println("\nYour opponent's team consists of the following Palmons:");
-        opponent.team.assemble(Team.AssembleMethod.random);
+    private void assembleOpponentTeam() {
+        int opponentPalmonCount = UserInput.number("How many Palmons does your opponent have in his team? ", 1, Palmon.totalCount);
+        opponent.team = new Team(opponentPalmonCount, Palmon.lowestLevelPossible, Palmon.highestLevelPossible); //opponent team always has full level range
+        opponent.team.assembleRandomly(); //opponent team is always assembled randomly
     }
 
     public void battle() {
-        fightingPlayerPalmon = user.team.getNextPalmon();
-        fightingOpponentPalmon = opponent.team.getNextPalmon();
-
-        while (fightingPlayerPalmon != null && fightingOpponentPalmon != null) {
-            attackSequence();
+        if (user.team.fightingPalmon == null) {
+            setResult(opponent, user);
+            return;
         }
-    }
+        if (opponent.team.fightingPalmon == null) {
+            setResult(user, opponent);
+            return;
+        }
 
-    private void attackSequence() {
-        // Speed determines which Palmon starts attacking
-        if (fightingPlayerPalmon.speed >= fightingOpponentPalmon.speed) { //light advantage for player
-            fightingPlayerPalmon.performAttack(fightingOpponentPalmon, fightingPlayerPalmon.selectAttack());
-            if(fightingOpponentPalmon.isDefeated()) {
-                fightingOpponentPalmon = opponent.team.getNextPalmon();
-                return;
+        if (user.team.fightingPalmon.speed >= opponent.team.fightingPalmon.speed) { //User preferred in case of equal speed
+            if (battleRound(user.team, opponent.team, false)) {
+                battle(); // Continue with next round, if opponent's Palmon got defeated
             }
-            fightingOpponentPalmon.performAttack(fightingPlayerPalmon, fightingOpponentPalmon.getRandomAttack());
-            if(fightingPlayerPalmon.isDefeated()) {
-                fightingPlayerPalmon = user.team.getNextPalmon();
-            }
+            battleRound(opponent.team, user.team, true);
         } else {
-            fightingOpponentPalmon.performAttack(fightingPlayerPalmon, fightingOpponentPalmon.getRandomAttack());
-            if(fightingPlayerPalmon.isDefeated()) {
-                fightingPlayerPalmon = user.team.getNextPalmon();
-                return;
+            if (battleRound(opponent.team, user.team, true)) {
+                battle(); // Continue with next round, if user's Palmon got defeated
             }
-            fightingPlayerPalmon.performAttack(fightingOpponentPalmon, fightingPlayerPalmon.selectAttack());
-            if(fightingOpponentPalmon.isDefeated()) {
-                fightingOpponentPalmon = user.team.getNextPalmon();
-            }
+            battleRound(user.team, opponent.team, false);
         }
+
     }
 
+    //Returns status if defending Palmon got defeated
+    private boolean battleRound(Team attackingTeam, Team defendingTeam, boolean isRandom) {
+        attackingTeam.fightingPalmon.performAttack(defendingTeam.fightingPalmon, isRandom);
+        if (defendingTeam.fightingPalmon.isDefeated()) {
+            defendingTeam.swapFightingPalmon();
+            return true;
+        }
+        return false;
+    }
 
-    public void determineResult() {
-         winner = fightingOpponentPalmon == null ? user : opponent; //User wins when opponent has no remaining palmons
-         loser = fightingPlayerPalmon == null ? user : opponent; //User loses when he has no remaining palmons
+    private void setResult(Player winner, Player loser) {
+        this.winner = winner;
+        this.loser = loser;
+    }
 
+    public void printResult() {
         System.out.println(winner.name + " has won.");
         System.out.println(loser.name + " has lost.");
     }
