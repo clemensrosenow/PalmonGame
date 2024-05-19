@@ -9,7 +9,6 @@ import java.util.*;
 
 //Todo: Associate team with fight instead of player to allow for multiple fights, else reset team after each fight
 public class Team implements TeamAssembly {
-    final public static AssembleMethod defaultAssembleMethod = Team.AssembleMethod.random;
     private Iterator<Palmon> fightingQueue;
     public Palmon fightingPalmon;
     int palmonCount;
@@ -79,8 +78,8 @@ public class Team implements TeamAssembly {
 
         while (assemblyUncompleted()) {
             String selectedType = UserInput.select("Which Palmon type do you want? ", availableTypes);
-            ArrayList<Palmon> availablePalmons = palmonTypes.get(selectedType);
-            printTable(availablePalmons);
+            ArrayList<Palmon> availablePalmons = palmonsGroupedByType.get(selectedType);
+            TableOutput.printPalmonTable(availablePalmons);
             addPalmonById("Which " + selectedType + " Palmon do you want in your team? Enter its ID: ", availablePalmons);
         }
         setupFightingQueue();
@@ -90,10 +89,11 @@ public class Team implements TeamAssembly {
     public void assembleById() {
         System.out.println("Now select your favorite Palmons by their " + AssembleMethod.id.name() + "!");
 
-        printTable(CSVProcessing.palmons);
+        ArrayList<Palmon> totalPalmons = DB.getPalmons();
+        TableOutput.printPalmonTable(totalPalmons);
 
         while (assemblyUncompleted()) {
-            addPalmonById("Which Palmon do you want in your team? Enter its ID: ", CSVProcessing.palmons);
+            addPalmonById("Which Palmon do you want in your team? Enter its ID: ", totalPalmons);
         }
         setupFightingQueue();
     }
@@ -117,18 +117,6 @@ public class Team implements TeamAssembly {
         return selectedPalmon;
     }
 
-    void printTable(ArrayList<Palmon> dataSource) {
-        ArrayList<TableOutput.Column> columns = new ArrayList<>();
-        columns.add(new TableOutput.Column("id", 5, TableOutput.Column.Formatting.digit, dataSource.stream().map(palmon -> palmon.id).toArray()));
-        columns.add(new TableOutput.Column("name", 26, TableOutput.Column.Formatting.string, dataSource.stream().map(palmon -> palmon.name).toArray()));
-        columns.add(new TableOutput.Column("types", 18, TableOutput.Column.Formatting.string, dataSource.stream().map(palmon -> palmon.types[0] + (palmon.types[1].isEmpty() ? "" : ", " + palmon.types[1])).toArray()));
-        columns.add(new TableOutput.Column("hp", 3, TableOutput.Column.Formatting.digit, dataSource.stream().map(palmon -> palmon.hp).toArray()));
-        columns.add(new TableOutput.Column("attack", 6, TableOutput.Column.Formatting.digit, dataSource.stream().map(palmon -> palmon.attack).toArray()));
-        columns.add(new TableOutput.Column("defense", 7, TableOutput.Column.Formatting.digit, dataSource.stream().map(palmon -> palmon.defense).toArray()));
-        columns.add(new TableOutput.Column("speed", 5, TableOutput.Column.Formatting.digit, dataSource.stream().map(palmon -> palmon.speed).toArray()));
-
-        new TableOutput(new ArrayList<>(columns)).print();
-    }
 
     public enum AssembleMethod {
         random, id, type

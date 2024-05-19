@@ -68,22 +68,12 @@ public class Palmon {
     private Move selectAttack(boolean randomSelection) {
         if(randomSelection) {
             Random random = new Random();
-            ArrayList<Move> availableMoves = getAvailableMoves();
             return availableMoves.get(random.nextInt(availableMoves.size()));
         }
 
         System.out.println("\nSelect your attacking move!");
 
-        ArrayList<Move> availableMoves = getAvailableMoves();
-
-        ArrayList< TableOutput.Column> columns = new ArrayList<>();
-        //No column for remaining usages because already implied by availability
-        columns.add(new TableOutput.Column("id", 5, TableOutput.Column.Formatting.digit, availableMoves.stream().map(move -> move.id).toArray()));
-        columns.add(new TableOutput.Column("name", 20, TableOutput.Column.Formatting.string, availableMoves.stream().map(move -> move.name).toArray()));
-        columns.add(new TableOutput.Column("damage", 6, TableOutput.Column.Formatting.digit, availableMoves.stream().map(move -> move.damage).toArray()));
-        columns.add(new TableOutput.Column("accuracy", 8, TableOutput.Column.Formatting.digit, availableMoves.stream().map(move -> move.accuracy).toArray()));
-        columns.add(new TableOutput.Column("type", 10, TableOutput.Column.Formatting.string, availableMoves.stream().map(move -> move.type).toArray()));
-        new TableOutput(columns).print();
+        TableOutput.printMoveTable(availableMoves);
 
         return selectMoveById("Enter the ID of the move you want to use: ", availableMoves);
     }

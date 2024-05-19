@@ -1,5 +1,8 @@
 package utilities;
 
+import entities.Move;
+import entities.Palmon;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -78,7 +81,7 @@ public class TableOutput {
         printRow(columns.stream().map(column -> column.entries[rowIndex]).toArray(), false);
     }
 
-    public void printRow(Object[] values, boolean printHead) {
+    private void printRow(Object[] values, boolean printHead) {
         char columnDivider = '│';
         StringBuilder line = new StringBuilder();
         line.append(columnDivider);
@@ -90,7 +93,7 @@ public class TableOutput {
             }
             line.append(column.characterLength);
             if (printHead) {
-                line.append("S "); //Column names are always displayed as uppercase strings
+                line.append("S" + " "); //Column names are always displayed as uppercase strings
             } else {
                 line.append(column.formatting.flag + " ");
             }
@@ -99,17 +102,6 @@ public class TableOutput {
         }
         line.append("%n"); //Newline character to print on own line
         System.out.printf(String.valueOf(line), values);
-    }
-
-    public static void main(String[] args) {
-        Object[] ids = {1,2,3,4};
-        Object[] names = {"OH", "MY", "GOD", "!!!"};
-        Column id = new Column("id", 5, Column.Formatting.digit, ids);
-        Column name = new Column("name", 20, Column.Formatting.string, names);
-
-
-        TableOutput table = new TableOutput(new ArrayList<>(Arrays.asList(id, name)));
-        table.print();
     }
 
     public void print() {
@@ -123,6 +115,30 @@ public class TableOutput {
 
         printBorder(BorderPosition.bottom);
     }
+
+    public static void printPalmonTable(ArrayList<Palmon> palmons) {
+        ArrayList<TableOutput.Column> columns = new ArrayList<>();
+
+        columns.add(new TableOutput.Column("id", 5, TableOutput.Column.Formatting.digit, palmons.stream().map(palmon -> palmon.id).toArray()));
+        columns.add(new TableOutput.Column("name", 26, TableOutput.Column.Formatting.string, palmons.stream().map(palmon -> palmon.name).toArray()));
+        columns.add(new TableOutput.Column("types", 18, TableOutput.Column.Formatting.string, palmons.stream().map(palmon -> palmon.types[0] + (palmon.types[1].isEmpty() ? "" : ", " + palmon.types[1])).toArray()));
+        columns.add(new TableOutput.Column("hp", 3, TableOutput.Column.Formatting.digit, palmons.stream().map(palmon -> palmon.hp).toArray()));
+        columns.add(new TableOutput.Column("attack", 6, TableOutput.Column.Formatting.digit, palmons.stream().map(palmon -> palmon.attack).toArray()));
+        columns.add(new TableOutput.Column("defense", 7, TableOutput.Column.Formatting.digit, palmons.stream().map(palmon -> palmon.defense).toArray()));
+        columns.add(new TableOutput.Column("speed", 5, TableOutput.Column.Formatting.digit, palmons.stream().map(palmon -> palmon.speed).toArray()));
+
+        new TableOutput(new ArrayList<>(columns)).print();
+    }
+
+    public static void printMoveTable(ArrayList<Move> moves) {
+        ArrayList<TableOutput.Column> columns = new ArrayList<>();
+
+        columns.add(new TableOutput.Column("id", 5, TableOutput.Column.Formatting.digit, moves.stream().map(move -> move.id).toArray()));
+        columns.add(new TableOutput.Column("name", 20, TableOutput.Column.Formatting.string, moves.stream().map(move -> move.name).toArray()));
+        columns.add(new TableOutput.Column("damage", 6, TableOutput.Column.Formatting.digit, moves.stream().map(move -> move.damage).toArray()));
+        columns.add(new TableOutput.Column("accuracy", 8, TableOutput.Column.Formatting.digit, moves.stream().map(move -> move.accuracy).toArray()));
+        columns.add(new TableOutput.Column("type", 10, TableOutput.Column.Formatting.string, moves.stream().map(move -> move.type).toArray()));
+
+        new TableOutput(columns).print();
+    }
 }
-
-
