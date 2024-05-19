@@ -1,6 +1,6 @@
 package entities;
 
-import utilities.CSVProcessing;
+import utilities.DataNormalization;
 import utilities.Localization;
 import utilities.UserInput;
 
@@ -10,6 +10,6 @@ public class Player {
 
     public void setName(String messageKey) {
         String nameInput = UserInput.text(Localization.getMessage(messageKey));
-        name = CSVProcessing.normalize(nameInput);
+        name = DataNormalization.name(nameInput, ' ', ' ');
     }
 }

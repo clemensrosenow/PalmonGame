@@ -1,15 +1,16 @@
 package entities;
 
-import interfaces.TeamAssembly;
+import resources.DB;
+import utilities.ExecutionPause;
+import utilities.TableOutput;
 import utilities.UserInput;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Fight {
     Player user;
     Player opponent;
-    Player winner;
-    Player loser;
 
     public Fight(Player user, Player opponent) {
         this.user = user;
@@ -22,7 +23,7 @@ public class Fight {
     }
 
     private void assembleUserTeam() {
-        int playerPalmonCount = UserInput.number("How many Palmons do you want to have in your team? ", 1, Palmon.totalCount);
+        int playerPalmonCount = UserInput.number("How many Palmons do you want to have in your team? ", 1, DB.totalPalmonCount());
         final int minimumRange = Palmon.highestLevelPossible - Move.medianUnlockLevel;
         int minLevel = Palmon.lowestLevelPossible;
         int maxLevel = Palmon.highestLevelPossible;
@@ -34,55 +35,50 @@ public class Fight {
         }
 
         // Player Team Setup
-        user.team = new Team(playerPalmonCount, minLevel, maxLevel);
-        TeamAssembly.Method assemblyMethod = TeamAssembly.Method.valueOf(UserInput.select("By which attribute do you want to select your Palmons?", TeamAssembly.Method.values()));
-        switch (assemblyMethod) {
-            case id:
-                user.team.assembleById();
-                break;
-            case type:
-                user.team.assembleByType();
-                break;
-            case random:
-            default:
-                user.team.assembleRandomly();
-        }
+        TeamAssembler.Method assemblyMethod = TeamAssembler.Method.valueOf(UserInput.select("By which attribute do you want to select your Palmons?", TeamAssembler.Method.values()));
+        user.team = new Team(playerPalmonCount, minLevel, maxLevel, assemblyMethod);
         System.out.println("\nYour team consists of the following Palmons:");
-        user.team.printTable(new ArrayList<>(user.team.palmons));
+        TableOutput.printPalmonTable(new ArrayList<>(user.team.palmons));
+        ExecutionPause.sleep(3);
     }
 
     private void assembleOpponentTeam() {
-        int opponentPalmonCount = UserInput.number("How many Palmons does your opponent have in his team? ", 1, Palmon.totalCount);
-        opponent.team = new Team(opponentPalmonCount, Palmon.lowestLevelPossible, Palmon.highestLevelPossible); //opponent team always has full level range
-        opponent.team.assembleRandomly(); //opponent team is always assembled randomly
+        Random random = new Random();
+        int opponentPalmonCount = random.nextInt(user.team.palmons.size() * 2 - 1) + 1;
+        if(UserInput.confirm("Do you want to set the number of Palmons for " + opponent.name + "?")) {
+            opponentPalmonCount = UserInput.number("How many Palmons does your opponent have in his team? ", 1, DB.totalPalmonCount());
+        }
+        opponent.team = new Team(opponentPalmonCount, Palmon.lowestLevelPossible, Palmon.highestLevelPossible, TeamAssembler.Method.random); //opponent team always has full level range
+        ExecutionPause.sleep(2);
+        System.out.println(opponent.name + " is ready to crush you. Let the fight begin!");
+        ExecutionPause.sleep(2);
     }
 
     public void battle() {
-        if (user.team.fightingPalmon == null) {
-            setResult(opponent, user);
-            return;
-        }
-        if (opponent.team.fightingPalmon == null) {
-            setResult(user, opponent);
-            return;
-        }
-
-        if (user.team.fightingPalmon.speed >= opponent.team.fightingPalmon.speed) { //User preferred in case of equal speed
-            if (battleRound(user.team, opponent.team, false)) {
-                battle(); // Continue with next round, if opponent's Palmon got defeated
+        while (!user.team.isDefeated() && !opponent.team.isDefeated()) {
+            if(UserInput.confirm("Do you want to see the current battle status?")) {
+                printBattleStatus();
             }
-            battleRound(opponent.team, user.team, true);
-        } else {
-            if (battleRound(opponent.team, user.team, true)) {
-                battle(); // Continue with next round, if user's Palmon got defeated
-            }
-            battleRound(user.team, opponent.team, false);
-        }
 
+            if (user.team.fightingPalmon.speed >= opponent.team.fightingPalmon.speed) { //User preferred in case of equal speed
+                if (battleRound(user.team, opponent.team, false)) {
+                    continue; // Continue with next round, if opponent's Palmon got defeated
+                }
+                ExecutionPause.sleep(1);
+                battleRound(opponent.team, user.team, true);
+            } else {
+                if (battleRound(opponent.team, user.team, true)) {
+                    continue; // Continue with next round, if user's Palmon got defeated
+                }
+                ExecutionPause.sleep(1);
+                battleRound(user.team, opponent.team, false);
+            }
+        }
     }
 
     //Returns status if defending Palmon got defeated
     private boolean battleRound(Team attackingTeam, Team defendingTeam, boolean isRandom) {
+        System.out.println("\nIt's " + (isRandom ? opponent.name + "'s" : "your") + " turn with " + attackingTeam.fightingPalmon.name + ".");
         attackingTeam.fightingPalmon.performAttack(defendingTeam.fightingPalmon, isRandom);
         if (defendingTeam.fightingPalmon.isDefeated()) {
             defendingTeam.swapFightingPalmon();
@@ -91,13 +87,25 @@ public class Fight {
         return false;
     }
 
-    private void setResult(Player winner, Player loser) {
-        this.winner = winner;
-        this.loser = loser;
+    void printBattleStatus() {
+        System.out.println("\nYou have " + user.team.remainingPalmons() + " Palmons left.");
+        System.out.println(opponent.name + " has " + opponent.team.remainingPalmons() + " Palmons left.");
+
+        System.out.println("\n Currently fighting Palmons (yours is the first):");
+        ArrayList<Palmon> fightingPalmons = new ArrayList<>();
+        fightingPalmons.add(user.team.fightingPalmon);
+        fightingPalmons.add(opponent.team.fightingPalmon);
+        TableOutput.printPalmonTable(fightingPalmons);
+        ExecutionPause.sleep(3);
     }
 
     public void printResult() {
-        System.out.println(winner.name + " has won.");
-        System.out.println(loser.name + " has lost.");
+        if (opponent.team.isDefeated()) {
+            System.out.println("\nCongratulations, " + user.name + "! You have defeated " + opponent.name + "with these Palmons:");
+            TableOutput.printPalmonTable(new ArrayList<>(user.team.palmons));
+        } else {
+            System.out.println("\nAs expected, " + opponent.name + " has destroyed you. But even in loss, you have the power to rise again.");
+        }
+        ExecutionPause.sleep(1);
     }
 }

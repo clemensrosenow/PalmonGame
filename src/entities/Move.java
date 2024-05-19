@@ -4,11 +4,11 @@ import java.util.Random;
 public class Move {
     public final static int medianUnlockLevel = 15;
     public final int id;
-    final String name;
-    final int damage;
+    public final String name;
+    public final int damage;
     public int availableUsages;
-    final int accuracy;
-    final String type;
+    public final int accuracy;
+    public final String type;
 
     public Move(int id, String name, int damage, int maxUsages, int accuracy, String type) {
         this.id = id;

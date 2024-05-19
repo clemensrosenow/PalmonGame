@@ -39,28 +39,31 @@ public class MaxHeap {
         int leftChildIndex = 2 * parentIndex + 1;
         int rightChildIndex = 2 * parentIndex + 2;
 
-        if(leftChildIndex >= nodes.size()) return;
-        if(nodes.get(leftChildIndex).key > nodes.get(largestIndex).key) {
+        if(leftChildIndex < nodes.size() && nodes.get(leftChildIndex).key > nodes.get(largestIndex).key) {
             largestIndex = leftChildIndex;
         }
 
-        if(rightChildIndex >= nodes.size()) return;
-        if(nodes.get(rightChildIndex).key > nodes.get(largestIndex).key) {
+        if(rightChildIndex < nodes.size() && nodes.get(rightChildIndex).key > nodes.get(largestIndex).key) {
             largestIndex = rightChildIndex;
         }
 
-        if (largestIndex == parentIndex) return; // Edge case: Parent has stayed the largest node
-        nodes.set(parentIndex, nodes.get(largestIndex));
-        nodes.set(largestIndex, nodes.get(parentIndex));
+        if (largestIndex == parentIndex) return; // No further steps when parent is the largest node
+
+        //Swap nodes
+        Node parent = nodes.get(parentIndex);
+        Node largestChild = nodes.get(largestIndex);
+        nodes.set(parentIndex, largestChild);
+        nodes.set(largestIndex, parent);
         heapifyDown(largestIndex);
     }
 
     //Returns max value of the heap and maintains right structure
     public Integer delete() {
         if(nodes.isEmpty()) return null;
-        int maxValue = nodes.removeFirst().value;
-        if (!nodes.isEmpty()) {
-            nodes.addFirst(nodes.removeLast());
+        int maxValue = nodes.get(0).value;
+        Node lastNode = nodes.remove(nodes.size() - 1);
+        if(!nodes.isEmpty()) {
+            nodes.set(0, lastNode); //Replace root with last node
             heapifyDown(0);
         }
         return maxValue;

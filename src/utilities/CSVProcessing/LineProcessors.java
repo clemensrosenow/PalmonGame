@@ -44,8 +44,8 @@ class EffectivityProcessor extends LineProcessor<HashMap<String, HashMap<String,
 
     @Override
     void processLine(String[] values) {
-        String attackerType = values[0];
-        String targetType = values[1];
+        String attackerType = DataNormalization.word(values[0]);
+        String targetType = DataNormalization.word(values[1]);
         float damageFactor = DataNormalization.percentage(values[2]);
 
         data.putIfAbsent(attackerType, new HashMap<>());
