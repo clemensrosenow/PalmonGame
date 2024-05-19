@@ -64,14 +64,7 @@ public class Palmon {
         return hp <= 0;
     }
 
-    private Move selectAttack(boolean randomSelection) {
-        ArrayList<Move> availableMoves = getAvailableMoves();
-
-        if (availableMoves.isEmpty()) {
-            System.out.println("No moves available. Palmon cannot attack.");
-            return null;
-        }
-
+    private Move selectAttack(ArrayList<Move> availableMoves, boolean randomSelection) {
         if(randomSelection) {
             Random random = new Random();
             int randomIndex = random.nextInt(availableMoves.size());
@@ -79,7 +72,6 @@ public class Palmon {
         }
 
         TableOutput.printMoveTable(availableMoves);
-
         return selectMoveById("Enter the ID of the move you want to use: ", availableMoves);
     }
 
@@ -102,10 +94,14 @@ public class Palmon {
     }
 
     public void performAttack(Palmon victim, boolean randomMoveSelection) {
+        ArrayList<Move> availableMoves = getAvailableMoves();
+        if (availableMoves.isEmpty()) {
+            System.out.println("No moves available. " + this.name + " can not attack.");
+            return;
+        }
         if (!randomMoveSelection) System.out.println("Select " + this.name + "'s move to attack " + victim.name + "!");
-        Move attack = selectAttack(randomMoveSelection);
-        if (attack == null) return;
 
+        Move attack = selectAttack(availableMoves, randomMoveSelection);
         attack.use();
 
         if (!attack.hits()) {
