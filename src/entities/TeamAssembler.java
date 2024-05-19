@@ -4,8 +4,10 @@ import resources.DB;
 import utilities.ExecutionPause;
 import utilities.TableOutput;
 import utilities.UserInput;
+import utilities.Localization;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 class TeamAssembler {
     private final int palmonCount;
@@ -13,7 +15,18 @@ class TeamAssembler {
     private final int maxLevel;
     protected HashSet<Palmon> palmons;
     public enum Method {
-        random, id, type
+        random(Localization.getMessage("enum.assembler.random")), id(Localization.getMessage("enum.assembler.id")), type(Localization.getMessage("enum.assembler.type"));
+        public final String name;
+        Method(String name) {
+            this.name = name;
+        }
+        public String getLocalized() {
+            return Localization.getMessage("enum.assembler." + this.name());
+        }
+
+        public static ArrayList<String> getLocalizedOptions() {
+            return Arrays.stream(Method.values()).map(Method::getLocalized).collect(Collectors.toCollection(ArrayList::new));
+        }
     }
 
     TeamAssembler(int palmonCount, int minLevel, int maxLevel, Method assemblyMethod) {
@@ -56,27 +69,27 @@ class TeamAssembler {
     private void assembleByType() {
         HashMap<String, ArrayList<Palmon>> palmonsGroupedByType = DB.getPalmonsByType();
 
-        //Output selectable types
-        System.out.println("Now select your favorite Palmons by their " + TeamAssembler.Method.type.name() + "!");
+        // Output selectable types
+        System.out.println(Localization.getMessage("team.assembler.select.by.type", TeamAssembler.Method.type.name()));
         ArrayList<String> availableTypes = new ArrayList<>(palmonsGroupedByType.keySet());
-        Collections.sort(availableTypes); //Sort types in ascending alphabetical order
+        Collections.sort(availableTypes); // Sort types in ascending alphabetical order
 
         while (assemblyUncompleted()) {
-            String selectedType = UserInput.select("Which Palmon type do you want? ", availableTypes);
+            String selectedType = UserInput.select(Localization.getMessage("team.assembler.select.type"), availableTypes);
             ArrayList<Palmon> availablePalmons = palmonsGroupedByType.get(selectedType);
             TableOutput.printPalmonTable(availablePalmons);
-            addPalmonById("Which " + selectedType + " Palmon do you want in your team? Enter its ID: ", availablePalmons);
+            addPalmonById(Localization.getMessage("team.assembler.select.by.type.prompt", selectedType), availablePalmons);
         }
     }
 
     private void assembleById() {
-        System.out.println("Now select your favorite Palmons by their " + TeamAssembler.Method.id.name() + "!");
+        System.out.println(Localization.getMessage("team.assembler.select.by.id", TeamAssembler.Method.id.name()));
 
         ArrayList<Palmon> totalPalmons = DB.getPalmons();
         TableOutput.printPalmonTable(totalPalmons);
 
         while (assemblyUncompleted()) {
-            addPalmonById("Which Palmon do you want in your team? Enter its ID: ", totalPalmons);
+            addPalmonById(Localization.getMessage("team.assembler.select.by.id.prompt"), totalPalmons);
         }
     }
 
@@ -86,17 +99,17 @@ class TeamAssembler {
         Optional<Palmon> optionalPalmon = dataSource.stream().filter(palmon -> palmon.id == selectedId).findFirst();
 
         if (optionalPalmon.isEmpty()) {
-            return addPalmonById("No Palmon exists for this ID. Enter a different one: ", dataSource);
+            return addPalmonById(Localization.getMessage("team.assembler.no.palmon.exists"), dataSource);
         }
 
         Palmon selectedPalmon = optionalPalmon.get();
         if (palmons.contains(selectedPalmon)) {
-            return addPalmonById("The selected Palmon is already in your team. Please select a different one: ", dataSource);
+            return addPalmonById(Localization.getMessage("team.assembler.already.in.team"), dataSource);
         }
 
         add(selectedPalmon);
 
-        System.out.println(selectedPalmon.name + " has been added to your team.");
+        System.out.println(Localization.getMessage("team.assembler.added", selectedPalmon.name));
         ExecutionPause.sleep(1);
         return selectedPalmon;
     }

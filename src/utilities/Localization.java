@@ -1,5 +1,6 @@
 package utilities;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 public class Localization {
@@ -14,18 +15,18 @@ public class Localization {
     static final Language defaultLanguage = Language.English;
     static Language userLanguage;
     static final String basePath = "resources/console_messages";
-    static ResourceBundle consoleText;
+    static ResourceBundle bundle;
 
     public static void configureLanguage() {
-    //Todo English file to _en for more clarity
         Locale.setDefault(new Locale(defaultLanguage.countryCode));
         String prompt = "What's your preferred language?";
         userLanguage = Language.valueOf(UserInput.select(prompt, Language.values()));
-        consoleText = ResourceBundle.getBundle(basePath, new Locale(userLanguage.countryCode));
+        bundle = ResourceBundle.getBundle(basePath, new Locale(userLanguage.countryCode));
     }
 
-    public static String getMessage(String propertyKey) {
-        return consoleText.getString(propertyKey);
+    public static String getMessage(String propertyKey, Object... args) { //Variable amount of arguments for dynamic value insertion
+        String pattern = bundle.getString(propertyKey);
+        return MessageFormat.format(pattern, args); //automatically replaces placeholders (e.g. {0}) with arguments
     }
 
     private Localization(){}; // Private constructor to prevent instantiation

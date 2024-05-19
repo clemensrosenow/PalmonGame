@@ -1,8 +1,9 @@
 package utilities;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-//Mini-Library for repeated user console input
+// Mini-Library for repeated user console input
 public class UserInput {
     static Scanner scanner = new Scanner(System.in);
 
@@ -13,63 +14,75 @@ public class UserInput {
         System.out.print("\n" + prompt + " ");
         String input = scanner.nextLine();
         while (input.isEmpty()) {
-            System.out.print("Text can't be empty: ");
-            input = scanner.nextLine();
+            System.out.print(Localization.getMessage("userinput.prompt.text.empty"));
+            input = DataNormalization.name(scanner.nextLine(), ' ', ' ');
         }
         return input;
     }
 
     public static boolean confirm(String prompt) {
         enum Options {
-            yes, no
+            yes, no;
+
+            public String getLocalized() {
+                return Localization.getMessage("enum.confirmation." + this.name());
+            }
         }
-        return Options.valueOf(select(prompt, Options.values())).equals(Options.yes);
+        // Convert enum values to localized strings for selection
+        ArrayList<String> options = Arrays.stream(Options.values()).map(Options::getLocalized).collect(Collectors.toCollection(ArrayList::new));
+        return select(prompt, options).equals(Options.yes.getLocalized());
     }
 
     public static int number(String prompt) {
-        System.out.print("\n" + prompt);
+        System.out.print("\n" + prompt + " ");
         try {
             int input = scanner.nextInt();
             scanner.nextLine(); // fully consume input
             return input;
         } catch (InputMismatchException exception) {
             scanner.nextLine(); // discard invalid token
-            return number("Enter a valid number: ");
+            return number(Localization.getMessage("userinput.prompt.number"));
         }
     }
 
     public static int number(String prompt, int lowerBound, int upperBound) {
         int input = number(prompt);
 
-        //Recursive error handling to avoid complex looping
+        // Recursive error handling to avoid complex looping
         if (input < lowerBound) {
-            return number("Enter a number greater than or equal to " + lowerBound + ": ", lowerBound, upperBound);
+            return number(Localization.getMessage("userinput.prompt.number.range.lower", lowerBound), lowerBound, upperBound);
         }
         if (input > upperBound) {
-            return number("Enter a number smaller than or equal to " + upperBound + ": ", lowerBound, upperBound);
+            return number(Localization.getMessage("userinput.prompt.number.range.upper", upperBound), lowerBound, upperBound);
         }
         return input;
     }
 
-    //Todo: Convert to ArrayList as Input, because with set the displayed order is reversed
     public static String select(String prompt, ArrayList<String> options) {
-        //Print options
-        System.out.println("\n" + prompt);
+        // Print options
+        System.out.println(prompt);
         options.forEach(option -> System.out.println("- " + option));
-        System.out.print("Your choice: ");
+        if(Localization.bundle == null) {
+            System.out.print("Your choice: "); // Fallback when language is not configured
+        } else {
+            System.out.print(Localization.getMessage("userinput.prompt.choice"));
+        }
 
-        String selection = scanner.nextLine();
+        String selection = DataNormalization.word(scanner.nextLine());
         while (!options.contains(selection)) {
-            System.out.print("\nSelect one of the provided options: ");
+            if(Localization.bundle == null) {
+                System.out.print("Select one of the provided options: ");
+            } else {
+                System.out.println(Localization.getMessage("userinput.prompt.choice.invalid"));
+            }
             selection = scanner.nextLine();
         }
         return selection;
     }
 
-    //Enables selection from enum values
+    // Enables selection from enum values
     public static <T extends Enum<T>> String select(String prompt, T[] options) {
-        //Covert enum type array to ArrayList of enum names for unified selection
+        // Convert enum type array to ArrayList of enum names for unified selection
         return select(prompt, new ArrayList<>(Arrays.asList(Arrays.stream(options).map(Enum::name).toArray(String[]::new))));
     }
-
 }

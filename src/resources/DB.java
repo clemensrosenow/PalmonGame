@@ -37,13 +37,7 @@ public class DB {
         return effectivity.get(attackerType).get(victimType);
     }
 
-    public static void getTotalEffectivity() {
-        for (String attackerType : effectivity.keySet()) {
-            for (String victimType : effectivity.get(attackerType).keySet()) {
-                System.out.println(attackerType + " -> " + victimType + " : " + effectivity.get(attackerType).get(victimType));
-            }
-        }
-    }
+
     public static int totalPalmonCount() {
         return palmons.size();
     }
@@ -52,13 +46,10 @@ public class DB {
         Random random = new Random();
         return palmons.get(random.nextInt(palmons.size()));
     }
-    /*public static Optional<Palmon> getPalmonById(int palmonId) {
-        return palmons.stream().filter(palmon -> palmon.id == palmonId).findFirst();
-    }*/
+
     public static Optional<Move> getMoveById(int moveId) {
         return moves.stream().filter(move -> move.id == moveId).findFirst();
     }
-
 
 
     public static HashMap<String, ArrayList<Palmon>> getPalmonsByType() {

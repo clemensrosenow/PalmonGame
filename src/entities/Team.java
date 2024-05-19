@@ -2,7 +2,6 @@ package entities;
 
 import java.util.*;
 
-//Todo: Associate team with fight instead of player to allow for multiple fights, else reset team after each fight
 public class Team extends TeamAssembler {
     private final Iterator<Palmon> fightingQueue;
     Palmon fightingPalmon;
