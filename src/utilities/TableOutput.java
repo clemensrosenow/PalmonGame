@@ -4,7 +4,6 @@ import entities.Move;
 import entities.Palmon;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class TableOutput {
     ArrayList<Column> columns; //ArrayList instead of Array for easier mapping
@@ -119,13 +118,13 @@ public class TableOutput {
     public static void printPalmonTable(ArrayList<Palmon> palmons) {
         ArrayList<TableOutput.Column> columns = new ArrayList<>();
 
-        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.id"), 5, TableOutput.Column.Formatting.digit, palmons.stream().map(palmon -> palmon.id).toArray()));
-        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.name"), 26, TableOutput.Column.Formatting.string, palmons.stream().map(palmon -> palmon.name).toArray()));
-        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.types"), 18, TableOutput.Column.Formatting.string, palmons.stream().map(palmon -> palmon.types[0] + (palmon.types[1].isEmpty() ? "" : ", " + palmon.types[1])).toArray()));
-        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.hp"), 3, TableOutput.Column.Formatting.digit, palmons.stream().map(palmon -> palmon.hp).toArray()));
-        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.attack"), 7, TableOutput.Column.Formatting.digit, palmons.stream().map(palmon -> palmon.attack).toArray()));
-        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.defense"), 12, TableOutput.Column.Formatting.digit, palmons.stream().map(palmon -> palmon.defense).toArray()));
-        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.speed"), 15, TableOutput.Column.Formatting.digit, palmons.stream().map(palmon -> palmon.speed).toArray()));
+        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.id"), 5, Column.Formatting.digit, palmons.stream().map(palmon -> palmon.id).toArray()));
+        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.name"), 26, Column.Formatting.string, palmons.stream().map(palmon -> palmon.name).toArray()));
+        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.types"), 18, Column.Formatting.string, palmons.stream().map(palmon -> palmon.types[0] + (palmon.types[1].isEmpty() ? "" : ", " + palmon.types[1])).toArray()));
+        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.hp"), 3, Column.Formatting.digit, palmons.stream().map(palmon -> palmon.hp).toArray()));
+        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.attack"), 7, Column.Formatting.digit, palmons.stream().map(palmon -> palmon.attack).toArray()));
+        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.defense"), 12, Column.Formatting.digit, palmons.stream().map(palmon -> palmon.defense).toArray()));
+        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.speed"), 15, Column.Formatting.digit, palmons.stream().map(palmon -> palmon.speed).toArray()));
 
         new TableOutput(new ArrayList<>(columns)).print();
     }
@@ -133,11 +132,11 @@ public class TableOutput {
     public static void printMoveTable(ArrayList<Move> moves) {
         ArrayList<TableOutput.Column> columns = new ArrayList<>();
 
-        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.id"), 5, TableOutput.Column.Formatting.digit, moves.stream().map(move -> move.id).toArray()));
-        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.name"), 20, TableOutput.Column.Formatting.string, moves.stream().map(move -> move.name).toArray()));
-        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.damage"), 6, TableOutput.Column.Formatting.digit, moves.stream().map(move -> move.damage).toArray()));
-        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.accuracy"), 8, TableOutput.Column.Formatting.digit, moves.stream().map(move -> move.accuracy).toArray()));
-        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.type"), 10, TableOutput.Column.Formatting.string, moves.stream().map(move -> move.type).toArray()));
+        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.id"), 5, Column.Formatting.digit, moves.stream().map(move -> move.id).toArray()));
+        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.name"), 20, Column.Formatting.string, moves.stream().map(move -> move.name).toArray()));
+        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.damage"), 7, Column.Formatting.digit, moves.stream().map(move -> move.damage).toArray()));
+        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.accuracy"), 16, Column.Formatting.digit, moves.stream().map(move -> (int) move.accuracy * 100).toArray()));
+        columns.add(new TableOutput.Column(Localization.getMessage("tableoutput.column.type"), 10, Column.Formatting.string, moves.stream().map(move -> move.type).toArray()));
 
         new TableOutput(columns).print();
     }

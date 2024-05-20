@@ -7,19 +7,43 @@ import utilities.DataNormalization;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Abstract class to process lines from CSV files.
+ *
+ * @param <ProcessingType> the type of data being processed
+ */
 abstract class LineProcessor<ProcessingType> {
     protected ProcessingType data;
+
+    /**
+     * Constructs a LineProcessor with the base data structure.
+     *
+     * @param baseDataStructure the base object to process
+     */
     protected LineProcessor(ProcessingType baseDataStructure) {
         this.data = baseDataStructure;
     }
 
+    /**
+     * Processes a line from the CSV file.
+     *
+     * @param values the values parsed from the CSV line
+     */
     abstract void processLine(String[] values);
 
+    /**
+     * Retrieves the processed data.
+     *
+     * @return the processed data
+     */
     ProcessingType getData() {
         return data;
-    };
+    }
 }
 
+/**
+ * Processes lines from a CSV file containing the moves.
+ */
 class MoveProcessor extends LineProcessor<ArrayList<Move>> {
     MoveProcessor() {
         super(new ArrayList<>());
@@ -31,12 +55,16 @@ class MoveProcessor extends LineProcessor<ArrayList<Move>> {
                 DataNormalization.name(values[1], '-', ' '),
                 DataNormalization.number(values[2]),
                 DataNormalization.number(values[3]),
-                DataNormalization.number(values[4]),
+                DataNormalization.percentage(values[4]),
                 DataNormalization.word(values[5])
         ));
     }
 }
 
+
+/**
+ * Processes lines from a CSV file containing the effectivity mapping of Palmon types.
+ */
 class EffectivityProcessor extends LineProcessor<HashMap<String, HashMap<String, Float>>> {
     EffectivityProcessor() {
         super(new HashMap<>());
@@ -53,7 +81,9 @@ class EffectivityProcessor extends LineProcessor<HashMap<String, HashMap<String,
     }
 }
 
-
+/**
+ * Processes lines from a CSV file containing the mapping of PalmonId and available MoveIds.
+ */
 class PalmonMoveProcessor extends LineProcessor<HashMap<Integer, HashMap<Integer, Integer>>> {
     PalmonMoveProcessor() {
         super(new HashMap<>());
@@ -70,6 +100,9 @@ class PalmonMoveProcessor extends LineProcessor<HashMap<Integer, HashMap<Integer
     }
 }
 
+/**
+ * Processes lines from a CSV file containing Palmon data.
+ */
 class PalmonProcessor extends LineProcessor<ArrayList<Palmon>> {
     PalmonProcessor() {
         super(new ArrayList<>());

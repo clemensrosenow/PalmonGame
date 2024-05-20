@@ -10,22 +10,27 @@ public class Game {
     static Player user = new Player();
     static Player opponent = new Player();
 
+    /**
+     * Main method to start the game.
+     */
     public static void main(String[] args) {
-        DB.fetchData(new CSVLoader());
-
         // Setup
-        Localization.configureLanguage();
+        DB.fetchData(new CSVLoader()); // Load data from CSV files in separate thread
+        Localization.configureLanguage(); // Set language of the ResourceBundle for console messages
         setNames();
 
-        // Game Loop
         do {
+            // Fight loop
             Fight fight = new Fight(user, opponent);
             fight.assembleTeams();
             fight.battle();
             fight.printResult();
-        } while (UserInput.confirm(Localization.getMessage("game.prompt.play.again")));
+        } while (UserInput.confirm(Localization.getMessage("game.prompt.play.again"))); // Ask for another round
     }
 
+    /**
+     * Sets the names of the user and opponent.
+     */
     private static void setNames() {
         user.setName(Localization.getMessage("game.prompt.name"));
         System.out.println(Localization.getMessage("game.welcome.message", user.name));

@@ -1,16 +1,28 @@
 package entities;
-import java.util.Random;
 
+/**
+ * Represents a move that a Palmon can perform in a battle.
+ */
 public class Move {
-    public final static int medianUnlockLevel = 15;
+    final static int medianUnlockLevel = 15;
     public final int id;
     public final String name;
     public final int damage;
-    public int availableUsages;
-    public final int accuracy;
+    private int availableUsages;
+    public final float accuracy;
     public final String type;
 
-    public Move(int id, String name, int damage, int maxUsages, int accuracy, String type) {
+    /**
+     * Constructs a Move with the specified attributes.
+     *
+     * @param id           the unique identifier for the move
+     * @param name         the name of the move
+     * @param damage       the damage dealt by the move
+     * @param maxUsages    the maximum number of times the move can be used
+     * @param accuracy     the accuracy percentage of the move
+     * @param type         the type of the move
+     */
+    public Move(int id, String name, int damage, int maxUsages, float accuracy, String type) {
         this.id = id;
         this.name = name;
         this.damage = damage;
@@ -19,15 +31,29 @@ public class Move {
         this.type = type;
     }
 
+    /**
+     * Decreases the available usages of the move by one.
+     */
     public void use() {
         availableUsages--;
     }
+
+    /**
+     * Checks if the move can still be used.
+     *
+     * @return true if the move has remaining usages, false otherwise
+     */
     public boolean isAvailable() {
         return availableUsages > 0;
     }
 
+    /**
+     * Determines if the move hits based on its accuracy.
+     *
+     * @return true if the move hits, false otherwise
+     */
     public boolean hits() {
-        return accuracy >= new Random().nextInt(100);
+        return accuracy >= Math.random();
     }
 }
 
