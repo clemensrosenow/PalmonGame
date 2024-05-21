@@ -155,7 +155,7 @@ public class TableOutput {
                 line.append("-"); // Required formatting flag for printf()
             }
             line.append(column.characterLength); // Set the character length for the column
-            line.append(printHead ? Column.Formatting.uppercaseString : column.formatting.flag); // Column names are always displayed as uppercase strings
+            line.append(printHead ? Column.Formatting.uppercaseString.flag : column.formatting.flag); // Column names are always displayed as uppercase strings
             line.append(" "); // Padding for cell content
             line.append(columnDivider);
         }
@@ -177,7 +177,7 @@ public class TableOutput {
         columns.add(new Column(Localization.getMessage("tableoutput.column.name"), 26, Column.Formatting.string, palmons.stream().map(palmon -> palmon.name).toArray()));
         columns.add(new Column(Localization.getMessage("tableoutput.column.height"), 6, Column.Formatting.digit, palmons.stream().map(palmon -> palmon.height).toArray()));
         columns.add(new Column(Localization.getMessage("tableoutput.column.weight"), 7, Column.Formatting.digit, palmons.stream().map(palmon -> palmon.weight).toArray()));
-        columns.add(new Column(Localization.getMessage("tableoutput.column.types"), 18, Column.Formatting.string, palmons.stream().map(palmon -> palmon.types[0] + (palmon.types[1].isEmpty() ? "" : ", " + palmon.types[1])).toArray()));
+        columns.add(new Column(Localization.getMessage("tableoutput.column.types"), 18, Column.Formatting.string, palmons.stream().map(Palmon::getTypes).toArray()));
         columns.add(new Column(Localization.getMessage("tableoutput.column.hp"), 3, Column.Formatting.digit, palmons.stream().map(palmon -> palmon.hp).toArray()));
         columns.add(new Column(Localization.getMessage("tableoutput.column.attack"), 7, Column.Formatting.digit, palmons.stream().map(palmon -> palmon.attack).toArray()));
         columns.add(new Column(Localization.getMessage("tableoutput.column.defense"), 12, Column.Formatting.digit, palmons.stream().map(palmon -> palmon.defense).toArray()));

@@ -118,7 +118,7 @@ public class UserInput {
             if(Localization.bundle == null) {
                 System.out.print("Select one of the provided options: "); // Fallback when language is not configured at the beginning
             } else {
-                System.out.print(Localization.getMessage("userinput.prompt.choice.invalid"));
+                System.out.print(Localization.getMessage("userinput.prompt.choice.invalid") + " ");
             }
             selection = DataNormalization.word(scanner.nextLine());
         }

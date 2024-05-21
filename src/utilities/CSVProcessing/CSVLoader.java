@@ -2,9 +2,11 @@ package utilities.CSVProcessing;
 
 import entities.Palmon;
 import entities.Move;
+import resources.LearnableMove;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -79,7 +81,7 @@ public class CSVLoader {
      *
      * @return the processed palmon-move data
      */
-    public HashMap<Integer, HashMap<Integer, Integer>> getPalmonMoveData() {
+    public HashMap<Integer, HashSet<LearnableMove>> getPalmonMoveData() {
         return palmonMoveProcessor.getData();
     }
 

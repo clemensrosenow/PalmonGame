@@ -14,7 +14,7 @@ import utilities.CSVProcessing.CSVLoader;
 public class DB {
     private static ArrayList<Palmon> palmons;
     private static ArrayList<Move> moves;
-    private static HashMap<Integer, HashMap<Integer, Integer>> palmonMoves; //PalmonId -> Level -> MoveId
+    private static HashMap<Integer, HashSet<LearnableMove>> palmonMoves; //PalmonId -> {MoveId, Level}
     private static HashMap<String, HashMap<String, Float>> effectivity;
 
     /**
@@ -45,9 +45,9 @@ public class DB {
      * Retrieves the moves learned by a specific Palmon at various levels.
      *
      * @param palmonId the ID of the Palmon
-     * @return a HashMap where keys are levels and values are move IDs
+     * @return a HashSet containing the all moves learned by the Palmon
      */
-    public static  HashMap<Integer, Integer> getPalmonMoves(int palmonId) {
+    public static  HashSet<LearnableMove> getPalmonMoves(int palmonId) {
         return palmonMoves.get(palmonId);
     }
 

@@ -7,6 +7,7 @@ import java.util.ArrayList;
  * This binary tree is represented as an Array, so no Node pointers are required.
  * Serves as a priority queue for storing and retrieving the highest damage moves.
  * Optimal runtime: O(log n) for insert and delete operations, getting the highest value with 0(1).
+ * I'm a humble person, but this is really excellent :)
  */
 public class MaxHeap {
     private final ArrayList<Node> nodes = new ArrayList<>();
@@ -70,9 +71,9 @@ public class MaxHeap {
      */
     public Integer delete() {
         if(nodes.isEmpty()) return null;
-        int maxValue = nodes.get(0).value; // Get the highest value node from the tree root
+        int maxValue = nodes.getFirst().value; // Get the highest value node from the tree root
 
-        Node lastNode = nodes.remove(nodes.size() - 1); //Remove the last node
+        Node lastNode = nodes.removeLast(); //Remove the last node
         if(nodes.isEmpty()) return maxValue; // Edge case: Last node is root
 
         nodes.set(0, lastNode); //Insert the last node at the root

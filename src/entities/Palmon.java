@@ -1,6 +1,7 @@
 package entities;
 
 import resources.DB;
+import resources.LearnableMove;
 import utilities.ExecutionPause;
 import utilities.TableOutput;
 import utilities.UserInput;
@@ -25,7 +26,7 @@ public class Palmon {
     public final int speed;
     public final int attack;
     public final int defense;
-    private final HashSet<Move> moves = new HashSet<>();
+    private final ArrayList<Move> moves = new ArrayList<>();
     public int hp;
     int level;
 
@@ -65,15 +66,15 @@ public class Palmon {
      */
     public void assignHighestDamageMoves() {
         // Get all possible moves of the Palmon
-        HashMap<Integer, Integer> palmonMoves = DB.getPalmonMoves(id);
+        HashSet<LearnableMove> palmonMoves = DB.getPalmonMoves(id);
 
         // Insert all possible moves into a MaxHeap
         MaxHeap maxHeap = new MaxHeap();
-        palmonMoves.forEach((unlockLevel, moveId) -> {
+        palmonMoves.forEach(learnableMove -> {
             // Filter if the move is unlocked at the Palmon level
-            if (level >= unlockLevel) {
+            if (level >= learnableMove.learnedOnLevel()) {
                 // Only insert if move exists in the database
-                Optional<Move> optionalMove = DB.getMoveById(moveId);
+                Optional<Move> optionalMove = DB.getMoveById(learnableMove.moveID());
                 optionalMove.ifPresent(move -> maxHeap.insert(move.id, move.damage));
             }
         });
@@ -202,5 +203,14 @@ public class Palmon {
     public void setRandomLevel(int min, int max) {
         Random random = new Random();
         level = random.nextInt(max - min) + min;
+    }
+
+    /**
+     * Gets the types of the Palmon in a formatted String.
+     *
+     * @return the existing types of the Palmon
+     */
+    public String getTypes() {
+        return types[0] + (types[1].isEmpty() ? "" : ", " + types[1]);
     }
 }

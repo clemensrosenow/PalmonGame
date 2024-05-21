@@ -2,10 +2,12 @@ package utilities.CSVProcessing;
 
 import entities.Move;
 import entities.Palmon;
+import resources.LearnableMove;
 import utilities.DataNormalization;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Abstract class to process lines from CSV files.
@@ -82,9 +84,9 @@ class EffectivityProcessor extends LineProcessor<HashMap<String, HashMap<String,
 }
 
 /**
- * Processes lines from a CSV file containing the mapping of PalmonId and available MoveIds.
+ * Processes lines from a CSV file containing the mapping of PalmonId to the amount of learnable moves.
  */
-class PalmonMoveProcessor extends LineProcessor<HashMap<Integer, HashMap<Integer, Integer>>> {
+class PalmonMoveProcessor extends LineProcessor<HashMap<Integer, HashSet<LearnableMove>>> {
     PalmonMoveProcessor() {
         super(new HashMap<>());
     }
@@ -95,8 +97,8 @@ class PalmonMoveProcessor extends LineProcessor<HashMap<Integer, HashMap<Integer
         int moveID = DataNormalization.number(values[1]);
         int learnedOnLevel = DataNormalization.number(values[2]);
 
-        data.putIfAbsent(palmonID, new HashMap<>());
-        data.get(palmonID).put(learnedOnLevel, moveID);
+        data.putIfAbsent(palmonID, new HashSet<>());
+        data.get(palmonID).add(new LearnableMove(moveID, learnedOnLevel));
     }
 }
 
