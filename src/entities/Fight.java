@@ -81,7 +81,8 @@ public class Fight {
         } else {
             // If not, randomly generate opponent team size based on user team size
             Random random = new Random();
-            opponentPalmonCount = random.nextInt(user.team.palmons.size() * 2 - 1) + 1; // set count to random int >= 1, which averages the user team size
+            int randomPalmonCount = random.nextInt(user.team.palmons.size() * 2 - 1) + 1; // set count to random int >= 1, which averages the user team size
+            opponentPalmonCount = Math.min(randomPalmonCount, DB.totalPalmonCount()); // Limit to total Palmon count
         }
 
         // Set up opponent team
