@@ -7,12 +7,10 @@ import utilities.TableOutput;
 import utilities.UserInput;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
 
 public class Fight {
-    private final Player user;
-    private final Player opponent;
+    private final User user;
+    private final Opponent opponent;
 
     /**
      * Constructs a Fight instance between the given user and opponent.
@@ -20,7 +18,7 @@ public class Fight {
      * @param user the user player
      * @param opponent the opponent player
      */
-    public Fight(Player user, Player opponent) {
+    public Fight(User user, Opponent opponent) {
         this.user = user;
         this.opponent = opponent;
     }
@@ -29,67 +27,11 @@ public class Fight {
      * Assembles the teams of both players.
      */
     public void assembleTeams() {
-        assembleUserTeam();
-        assembleOpponentTeam();
-    }
+        // Prompt user team size, limited to half count of all Palmons
+        int palmonCount = UserInput.number(Localization.getMessage("fight.prompt.team.size"), 1, DB.halfPalmonCount());
 
-    /**
-     * Assembles the team for the user by prompting for parameters.
-     * These include the team size, optionally a level range, and the assembly method.
-     * @see TeamAssembler for the available assembly methods
-     */
-    private void assembleUserTeam() {
-        // Palmon Count Selection
-        int playerPalmonCount = UserInput.number(Localization.getMessage("fight.prompt.team.size"), 1, DB.halfPalmonCount());
-
-        // Level Range Base Values
-        int minLevel = Palmon.lowestLevelPossible;
-        int maxLevel = Palmon.highestLevelPossible;
-
-        // Optional Level Range Selection
-        if (UserInput.confirm(Localization.getMessage("fight.prompt.level.range"))) {
-            // Inclusion of minimumRange, so enough moves can be assigned
-            minLevel = UserInput.number(Localization.getMessage("fight.prompt.lowest.level"), Palmon.lowestLevelPossible, Move.medianUnlockLevel);
-            int minimumRange = Palmon.highestLevelPossible - Move.medianUnlockLevel; // Ensures a minimum level range based on the median unlock level
-            maxLevel = UserInput.number(Localization.getMessage("fight.prompt.highest.level"), minLevel + minimumRange, Palmon.highestLevelPossible);
-        }
-
-        // Assembly Method Selection
-        String selectedMethod = UserInput.select(Localization.getMessage("fight.prompt.select.attribute"), TeamAssembler.Method.getLocalizedOptions());
-        TeamAssembler.Method assemblyMethod = Arrays.stream(TeamAssembler.Method.values()).filter(method -> method.getLocalized().equals(selectedMethod)).findFirst().orElse(TeamAssembler.Method.random); //Map selected method to enum, value is always found
-
-        // Set up user team
-        user.team = new Team(playerPalmonCount, minLevel, maxLevel, assemblyMethod);
-
-        // Print overview of user team Palmons
-        System.out.println("\n" + Localization.getMessage("fight.team.consists.of"));
-        ExecutionPause.sleep(2);
-        TableOutput.printPalmonTable(new ArrayList<>(user.team.palmons));
-
-        ExecutionPause.sleep(3);
-    }
-
-    /**
-     * Assembles the team for the opponent, optionally allowing the user to specify the team size.
-     * Level range and assembly method can't be influenced by the user.
-     */
-    private void assembleOpponentTeam() {
-        int opponentPalmonCount;
-        // Set opponent team size, limited to half count of all Palmons
-        // Allow user to set specific opponent team size if desired
-        if (UserInput.confirm(Localization.getMessage("fight.prompt.opponent.team.size", opponent.name))) {
-            opponentPalmonCount = UserInput.number(Localization.getMessage("fight.prompt.opponent.team.size.input"), 1, DB.halfPalmonCount());
-        } else {
-            // If not, randomly generate opponent team size based on user team size
-            Random random = new Random();
-            int randomPalmonCount = random.nextInt(user.team.palmons.size() * 2 - 1) + 1; // set count to random int >= 1, which averages the user team size
-            opponentPalmonCount = Math.min(randomPalmonCount, DB.halfPalmonCount());
-        }
-
-        // Set up opponent team
-        // Always random assembly with full level range
-        opponent.team = new Team(opponentPalmonCount, Palmon.lowestLevelPossible, Palmon.highestLevelPossible, TeamAssembler.Method.random);
-        ExecutionPause.sleep(2);
+        user.assembleTeam(palmonCount);
+        opponent.assembleTeam(palmonCount);
     }
 
     /**

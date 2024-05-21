@@ -126,7 +126,7 @@ class TeamAssembler {
      * @return the selected Palmon
      */
     private Palmon selectPalmonById(ArrayList<Palmon> dataSource) {
-        return selectPalmonById(dataSource, Localization.getMessage("team.assembler.select.by.id"));
+        return selectPalmonById(dataSource, Localization.getMessage("team.assembler.select.by.id.prompt"));
     }
 
     /**
