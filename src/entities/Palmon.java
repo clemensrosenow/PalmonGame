@@ -28,7 +28,7 @@ public class Palmon {
     public final int defense;
     private final ArrayList<Move> moves = new ArrayList<>();
     public int hp;
-    int level;
+    int level = highestLevelPossible;
     public boolean inTeam = false;
 
     /**
@@ -57,7 +57,6 @@ public class Palmon {
         this.attack = attack;
         this.defense = defense;
         this.speed = speed;
-        this.level = highestLevelPossible;
     }
 
     /**

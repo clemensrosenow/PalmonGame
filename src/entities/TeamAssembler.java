@@ -14,9 +14,10 @@ class TeamAssembler {
     private final int palmonCount;
     private final int minLevel;
     private final int maxLevel;
+    private final Method assemblyMethod;
 
     /**
-     * Assembles a team with the specified parameters.
+     * Constructs a team assembler with the specified parameters.
      *
      * @param palmonCount    the number of Palmons to assemble
      * @param minLevel       the minimum possible level of the Palmons
@@ -27,8 +28,16 @@ class TeamAssembler {
         this.palmonCount = palmonCount;
         this.minLevel = minLevel;
         this.maxLevel = maxLevel;
+        this.assemblyMethod = assemblyMethod;
         this.palmons = new HashSet<>();
 
+        assemble();
+    }
+
+    /**
+     * Prints relevant console data and assembles the team based on the user's selection method.
+     */
+    private void assemble() {
         boolean userAssembles = assemblyMethod == Method.id || assemblyMethod == Method.type;
 
         if (userAssembles) {
