@@ -29,6 +29,7 @@ public class Palmon {
     private final ArrayList<Move> moves = new ArrayList<>();
     public int hp;
     int level;
+    public boolean inTeam = false;
 
     /**
      * Constructs a Palmon with the specified attributes.

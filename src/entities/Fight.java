@@ -40,7 +40,7 @@ public class Fight {
      */
     private void assembleUserTeam() {
         // Palmon Count Selection
-        int playerPalmonCount = UserInput.number(Localization.getMessage("fight.prompt.team.size"), 1, DB.totalPalmonCount());
+        int playerPalmonCount = UserInput.number(Localization.getMessage("fight.prompt.team.size"), 1, DB.halfPalmonCount());
 
         // Level Range Base Values
         int minLevel = Palmon.lowestLevelPossible;
@@ -63,6 +63,7 @@ public class Fight {
 
         // Print overview of user team Palmons
         System.out.println("\n" + Localization.getMessage("fight.team.consists.of"));
+        ExecutionPause.sleep(2);
         TableOutput.printPalmonTable(new ArrayList<>(user.team.palmons));
 
         ExecutionPause.sleep(3);
@@ -74,15 +75,15 @@ public class Fight {
      */
     private void assembleOpponentTeam() {
         int opponentPalmonCount;
-
+        // Set opponent team size, limited to half count of all Palmons
         // Allow user to set specific opponent team size if desired
         if (UserInput.confirm(Localization.getMessage("fight.prompt.opponent.team.size", opponent.name))) {
-            opponentPalmonCount = UserInput.number(Localization.getMessage("fight.prompt.opponent.team.size.input"), 1, DB.totalPalmonCount());
+            opponentPalmonCount = UserInput.number(Localization.getMessage("fight.prompt.opponent.team.size.input"), 1, DB.halfPalmonCount());
         } else {
             // If not, randomly generate opponent team size based on user team size
             Random random = new Random();
             int randomPalmonCount = random.nextInt(user.team.palmons.size() * 2 - 1) + 1; // set count to random int >= 1, which averages the user team size
-            opponentPalmonCount = Math.min(randomPalmonCount, DB.totalPalmonCount()); // Limit to total Palmon count
+            opponentPalmonCount = Math.min(randomPalmonCount, DB.halfPalmonCount());
         }
 
         // Set up opponent team

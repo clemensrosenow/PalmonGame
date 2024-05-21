@@ -2,6 +2,7 @@ package resources;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 import entities.Move;
 import entities.Palmon;
@@ -33,12 +34,12 @@ public class DB {
     }
 
     /**
-     * Retrieves the list of all Palmons.
+     * Retrieves the list of all unused Palmons.
      *
-     * @return the list of Palmons
+     * @return the list of unused Palmons
      */
-    public static ArrayList<Palmon> getPalmons() {
-        return palmons;
+    public static ArrayList<Palmon> getUnusedPalmons() {
+        return palmons.stream().filter(palmon -> !palmon.inTeam).collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
@@ -64,22 +65,23 @@ public class DB {
 
 
     /**
-     * Retrieves the total count of Palmons.
+     * Retrieves half of the total count of Palmons.
      *
-     * @return the total count of Palmons
+     * @return the half count of Palmons
      */
-    public static int totalPalmonCount() {
-        return palmons.size();
+    public static int halfPalmonCount() {
+        return palmons.size() / 2;
     }
 
     /**
-     * Retrieves a random Palmon from the list.
+     * Retrieves a random unused Palmon from the list.
      *
-     * @return a random Palmon
+     * @return a random unused Palmon
      */
-    public static Palmon getRandomPalmon() {
+    public static Palmon getRandomUnusedPalmon() {
         Random random = new Random();
-        return palmons.get(random.nextInt(palmons.size()));
+        ArrayList<Palmon> unusedPalmons = getUnusedPalmons();
+        return unusedPalmons.get(random.nextInt(unusedPalmons.size()));
     }
 
     /**
@@ -97,9 +99,9 @@ public class DB {
      *
      * @return a HashMap where keys are types and values are lists of Palmons
      */
-    public static HashMap<String, ArrayList<Palmon>> getPalmonsByType() {
+    public static HashMap<String, ArrayList<Palmon>> getUnusedPalmonsGroupedByType() {
         HashMap<String, ArrayList<Palmon>> palmonsByType = new HashMap<>();
-        for (Palmon palmon : palmons) {
+        for (Palmon palmon : getUnusedPalmons()) {
             for (String type : palmon.types) {
                 palmonsByType.putIfAbsent(type, new ArrayList<>()); // Add type if not present
                 palmonsByType.get(type).add(palmon); // Add Palmon to the type list
