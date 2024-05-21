@@ -19,6 +19,8 @@ public class Palmon {
     public static final int maxMoves = 4;
     public final int id;
     public final String name;
+    public final int height;
+    public final int weight;
     public final String[] types = new String[2];
     public final int speed;
     public final int attack;
@@ -32,8 +34,8 @@ public class Palmon {
      *
      * @param id       the unique identifier for the Palmon
      * @param name     the name of the Palmon
-     * @param height   the height of the Palmon (not used)
-     * @param weight   the weight of the Palmon (not used)
+     * @param height   the height of the Palmon
+     * @param weight   the weight of the Palmon
      * @param type1    the primary type of the Palmon
      * @param type2    the secondary type of the Palmon
      * @param hp       the hit points of the Palmon
@@ -45,6 +47,8 @@ public class Palmon {
                   int hp, int attack, int defense, int speed) {
         this.id = id;
         this.name = name;
+        this.height = height;
+        this.weight = weight;
         this.types[0] = type1;
         this.types[1] = type2;
         this.hp = hp;
